@@ -1,0 +1,24 @@
+pdt: ----------------------------------
+pdt: Mon Jun 04 14:46:09 CEST 2012
+pdt: ----------------------------------
+pdt: set debug output to LOGFILE
+pdt: ----------------------------------
+pdt: Mon Jun 04 14:46:09 CEST 2012
+pdt: ----------------------------------
+pdt: set debug output to LOGFILE
+pdt: WARNING:main: Stopped setting the PDT outline content for file '/tictactoe/src/algorithms.pl'. The ContentModel has not been initialized. Probably the associated project does not have the PDT nature.
+pdt: WARNING:main: Stopped setting the PDT outline content for file '/tictactoe/src/print.pl'. The ContentModel has not been initialized. Probably the associated project does not have the PDT nature.
+pdt: WARNING:main: Stopped setting the PDT outline content for file '/tictactoe/src/tictactoe.pl'. The ContentModel has not been initialized. Probably the associated project does not have the PDT nature.
+pdt: WARNING:main: Stopped setting the PDT outline content. The ContentModel has not been initialized. Probably the associated project does not have the PDT nature.
+pdt: WARNING:main: Stopped setting the PDT outline content. The ContentModel has not been initialized. Probably the associated project does not have the PDT nature.
+pdt: WARNING:main: Stopped setting the PDT outline content. The ContentModel has not been initialized. Probably the associated project does not have the PDT nature.
+pdt: WARNING:Console Reader Thread: pdt: The following Exception was caught:
+pdt: ----------------------------------
+pdt: Mon Jun 04 18:31:21 CEST 2012
+pdt: ----------------------------------
+pdt: set debug output to LOGFILE
+pdt: ----------------------------------
+pdt: Mon Jun 04 18:31:21 CEST 2012
+pdt: ----------------------------------
+pdt: set debug output to LOGFILE
+pdt: WARNING:main: Stopped setting the PDT outline content for file '/tictactoe/src/tictactoe.pl'. The ContentModel has not been initialized. Probably the associated project does not have the PDT nature.
