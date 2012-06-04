@@ -29,13 +29,6 @@ newbounds( Alpha, Beta, Pos, Val, Alpha, Val)  :-
 
 newbounds( Alpha, Beta, _, _, Alpha, Beta).          % Otherwise bounds unchanged 
 
-betterof( Pos, Val, Pos1, Val1, Pos, Val)  :-        % Pos better than Pos1 
-  min_to_move( Pos), Val > Val1, !
-  ;
-  max_to_move( Pos), Val < Val1, !.
-
-betterof( _, _, Pos1, Val1, Pos1, Val1).             % Otherwise Pos1 better
-
 % Minimax
 
 minimax( Pos, BestSucc, Val)  :-
