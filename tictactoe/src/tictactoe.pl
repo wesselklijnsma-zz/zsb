@@ -14,6 +14,32 @@ game_start([0,0,0, 0,0,0, 0,0,0]).
 game_tie([1,-1,1,-1,-1,1,1,1,-1]).
 game_win1([1,-1,0,0,0,-1,0,0,1]).
 game_win2([1,1,0,1,-1,-1,0,-1,0]).
+game_lose1([1,-1,0,0,-1,1,0,0,0]).
+
+example1 :-
+   time((game_win2(Game),
+   print_board(1/Game),
+   alphabeta(1/Game, 1,-1, X, Y),
+   write_ln(Y),
+   print_board(X))).
+example2 :-
+   time((game_win1(Game),
+   print_board(1/Game),
+   alphabeta(1/Game, 1,-1, X, Y),
+   write_ln(Y),
+   print_board(X))).
+example3 :-
+   time((game_start(Game),
+   print_board(1/Game),
+   alphabeta(1/Game, 1,-1, X, Y),
+   write_ln(Y),
+   print_board(X))).
+example4 :-
+   time((game_lose1(Game),
+   print_board(1/Game),
+   alphabeta(1/Game, 1,-1, X, Y),
+   write_ln(Y),
+   print_board(X))).
 
 % You can only move if the game is not finished. Use findall
 % to find all possible moves and put them in a list.
