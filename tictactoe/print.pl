@@ -1,11 +1,6 @@
-% When every square has been printed, finish it
-% with a line.
-print_list([]) :- write_ln('\n\n').
-print_list([H|T]) :-
-    print_board(H),
-    print_list(T).
+% printing boards by Jouke van der Maas and Wessel Klijnsma
 
-print_board(_/[]) :- print_line.
+print_board(_/[]) :- print_line, !.
 
 % Print the items, three at a time.
 print_board(X/[S1, S2, S3 | Rest]) :-
@@ -21,7 +16,7 @@ print_board(X/[S1, S2, S3 | Rest]) :-
 print_line :-
     write_ln('+---+---+---+').
 
-% Print the item depending on 
+% Print the item depending on
 print_item(1) :-
     write('| X ').
 print_item(-1) :-
