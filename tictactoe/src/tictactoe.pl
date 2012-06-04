@@ -1,3 +1,5 @@
+% Test
+
 :- consult('algorithms.pl').
 :- consult('print.pl').
 
