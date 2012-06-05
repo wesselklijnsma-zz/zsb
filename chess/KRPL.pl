@@ -225,7 +225,7 @@ kings_close( Pos ) :-
 	dist( WK, BK, D ),
 	D < 4.
 
-king_in_square( Pos ) :-
+king_in_square( Pos , _ ) :-
 	wp( Pos, Px:Py ),
 	Size is 8 - Py,
 	
@@ -235,7 +235,7 @@ king_in_square( Pos ) :-
 	NKx =< Px + Size,
 	NKx >= Px - Size. 
 	
-king_blocked( Pos ) :-
+king_blocked( Pos , _ ) :-
 	wp(Pos, Px:_),
 	wk(Pos, WK),
 	bk(Pos, BK),
