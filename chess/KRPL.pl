@@ -225,6 +225,18 @@ kings_close( Pos ) :-
 	dist( WK, BK, D ),
 	D < 4.
 
+king_in_square( Pos ) :-
+	wp( Pos, Px:Py ),
+	Size is 8 - Py + 1,
+	
+	move(kingdiagfirst, Pos, _, Pos1),
+	bk( Pos1, NKx:NKy ),
+	(NKy > 8 - Size;
+	NKx =< Px + size;
+	NKx >= Px - Size) 
+	
+	
+
 dist( X : Y, X1: Y1, D ) :-
 	absdiff( X, X1, Dx ),
 	absdiff( Y, Y1, Dy ),
