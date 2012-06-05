@@ -15,7 +15,7 @@ else_rule :: if true
 
 
 advice( race_pawn, 
-	promotionmove :
+	promoted :
 	not pawnlost :
 	pawnmove :
         legal ).
