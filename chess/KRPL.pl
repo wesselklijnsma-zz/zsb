@@ -227,15 +227,20 @@ kings_close( Pos ) :-
 
 king_in_square( Pos ) :-
 	wp( Pos, Px:Py ),
-	Size is 8 - Py + 1,
+	Size is 8 - Py,
 	
 	move(kingdiagfirst, Pos, _, Pos1),
 	bk( Pos1, NKx:NKy ),
-	(NKy > 8 - Size;
-	NKx =< Px + size;
-	NKx >= Px - Size) 
+	NKy > 8 - Size - 1,
+	NKx =< Px + Size,
+	NKx >= Px - Size. 
 	
-	
+king_blocked( Pos ) :-
+	wp(Pos, Px:_),
+	wk(Pos, WK),
+	bk(Pos, BK),
+	inway(WP, Goal, Px:8),
+	inway(Goal, WK, BK).
 
 dist( X : Y, X1: Y1, D ) :-
 	absdiff( X, X1, Dx ),
