@@ -3,7 +3,7 @@
 
 % all rules
 
-square_rule :: if king_in_square or king_blocked
+square_rule :: if not bk_in_square or wk_on_critical
 	then [ race_pawn ].
 else_rule :: if true
 	then [ block_king, race_pawn ].
@@ -18,10 +18,10 @@ advice( race_pawn,
 	pawnpromoted,
 	not pawnlost :
 	pawnmove :
-        legal ).
+    legal ).
 
 advice( block_king,
-	king_blocked or not king_in_square,
+	wk_on_critical or not bk_in_square,
 	not pawnlost :
 	kingdiagfirst :
 	legal ).

@@ -225,7 +225,7 @@ kings_close( Pos ) :-
 	dist( WK, BK, D ),
 	D < 4.
 
-king_in_square( Pos , _ ) :-
+bk_in_square( Pos , _ ) :-
 	wp( Pos, Px:Py ),
 	Size is 8 - Py,
 
@@ -235,12 +235,50 @@ king_in_square( Pos , _ ) :-
 	NKx =< Px + Size,
 	NKx >= Px - Size.
 
-king_blocked( Pos , _ ) :-
-	wp(Pos, Px:Py),
-	wk(Pos, WK),
-	bk(Pos, BK),
-	inway(Px:Py, Goal, Px:8),
-	inway(Goal, WK, BK).
+wk_on_critical( Pos, _ ) :-
+    wp(Pos, WP),
+    wk(Pos, WK),
+    critical(WP, Crit),
+    member(WK, Crit).
+    
+critical( WP, Crit ) :-
+    findall(X, critpos(WP, X), Crit).
+
+critpos( 1:Py, 2:Cy ) :-
+    Py >= 5,
+    (Cy = 7;
+    Cy = 8).
+critpos( 8:Py, 7:Cy ) :-
+    Py >= 5,
+    (Cy = 7;
+    Cy = 8).
+critpos( Px:Py, Cx:Cy ) :-
+    Px > 1, Px < 8,
+    Py =< 4,
+    Cy is Py + 2,
+    (Cx is Px - 1;
+    Cx is Px + 1;
+    Cx = Px),
+    in(Cx), in(Cy).
+critpos( Px:Py, Cx:Cy ) :-
+    Px > 1, Px < 8,
+    Py =< 6, Py > 4
+    (Cy is Py + 1;
+    Cy is Py + 2),
+    (Cx is Px - 1;
+    Cx is Px + 1;
+    Cx = Px),
+    in(Cx), in(Cy).
+critpos( Px:Py, Cx:Cy ) :-
+    Px > 1, Px < 8,
+    Py = 7,
+    (Cy is Py + 1;
+    Cy = Py),
+    (Cx is Px - 1;
+    Cx is Px + 1;
+    Cx = Px),
+    Px:Py \= Cx:Cy,
+    in(Cx), in(Cy).
 
 dist( X : Y, X1: Y1, D ) :-
 	absdiff( X, X1, Dx ),
