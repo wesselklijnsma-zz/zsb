@@ -11,7 +11,7 @@
 % Bx, By are the X and Y coordinates of the black king
 % depth is depth of position in the search tree
 
-% selector relations needed 
+% selector relations needed
 
 side( Side.._, Side ).			% side to move in position
 wk( _..WK.._, WK ).			% white king coordinate
@@ -19,7 +19,7 @@ wp( _.._..WP.._, WP ).			% white rook coordinates
 bk( _.._.._..BK.._, BK ).		% black king coordinates
 depth( _.._.._.._..Depth, Depth ).	% depth of position in search tree
 
-resetdepth( S..W..P..B.._D, S..W..P..B..0 ). 	% copy of position with depth 0
+resetdepth( S..W..P..B.._D, S..W..P..B..0 ).	% copy of position with depth 0
 
 % basic operation
 max( A, B, A ) :-
@@ -54,11 +54,11 @@ n( N, N1 ) :-
 	in( N1 ).
 
 in( N ) :-
-	N > 0, 
-      	N < 9.
+	N > 0,
+	N < 9.
 
 diagngb( X : Y, X1 : Y1 ) :-
-	n( X, X1 ), 
+	n( X, X1 ),
 	n( Y, Y1 ).
 
 verngb( X : Y, X : Y1 ) :-
@@ -93,7 +93,7 @@ coord(8).
 % move( moveconstraint, pos, move, newpos )
 
 moveGeneral( depth < Max, Pos, _Move, _Pos1 ) :-
-	%write( '  move depth < Max ' ), 
+	%write( '  move depth < Max ' ),
 	depth( Pos, D ),
 	%write( D ), write( '<' ), write( Max ), nl,
 	D < Max, !.
@@ -116,18 +116,18 @@ legalmove( Pos, Move, Pos1 ):-
 	move( legal, Pos, Move, Pos1 ).
 
 % black king next to white king
-check( _US..W.._P..B.. _D ) :-	
+check( _US..W.._P..B.. _D ) :-
 	ngb( W, B ).
 
 % pawn is directly diagonal
-check( _US..W..Px : Py..Bx : By.. _D ) :-	
+check( _US..W..Px : Py..Bx : By.. _D ) :-
 	( Px is Bx - 1
 	  ;
 	  Px is Bx + 1
 	),
         Py is By - 1.
 
-% piece on the destination spot 
+% piece on the destination spot
 inway( _S, S1, S1 ) :- !.
 
 %horizontal
@@ -228,18 +228,18 @@ kings_close( Pos ) :-
 king_in_square( Pos , _ ) :-
 	wp( Pos, Px:Py ),
 	Size is 8 - Py,
-	
+
 	move(kingdiagfirst, Pos, _, Pos1),
 	bk( Pos1, NKx:NKy ),
 	NKy > 8 - Size - 1,
 	NKx =< Px + Size,
-	NKx >= Px - Size. 
-	
+	NKx >= Px - Size.
+
 king_blocked( Pos , _ ) :-
-	wp(Pos, Px:_),
+	wp(Pos, Px:Py),
 	wk(Pos, WK),
 	bk(Pos, BK),
-	inway(WP, Goal, Px:8),
+	inway(Px:Py, Goal, Px:8),
 	inway(Goal, WK, BK).
 
 dist( X : Y, X1: Y1, D ) :-
@@ -285,7 +285,7 @@ cs( _.._W.. Px : Py .. Bx : By .. _, Cx:Cy ) :-
 	  Cy is Py + 1
 	).
 
-	
+
 % display procedures
 % show the board setting on screen.
 % (this does not show the position in a format gnuchessr can read (TODO))
@@ -302,20 +302,20 @@ show( Pos ) :-
 	nl, write( ' +----------------' ), nl,
    %nl, write( ' |________________' ), nl,
 	write( '  1 2 3 4 5 6 7 8' ), nl,
-	side( Pos, S ), 
+	side( Pos, S ),
 	depth( Pos, D ),
 	nl, write( 'Side=' ), write( S ),
 	write( 'Depth=' ), write( D ), nl.
 
 % white king
 writepiece( Square, Pos ):-
-	wk( Pos, Square ), 
+	wk( Pos, Square ),
 		not mode(rookrook), !,
 	write( 'k ' ).
 
 % white rook 2 (instead of king)
 writepiece( Square, Pos ):-
-	wk( Pos, Square ), 
+	wk( Pos, Square ),
 		mode(rookrook),!,
 	write( 'r ' ).
 
@@ -351,10 +351,10 @@ savemove( X:Y-X2:Y2 ):-
 	tell( 'move.txt' ),
 	% process characters
 	C1 is X + 96,
-	%C2 is 57 - Y, % this flips the Y-positions... 
+	%C2 is 57 - Y, % this flips the Y-positions...
 	C2 is 48 + Y, % this doesn't
 	C3 is X2 + 96,
-	%C4 is 57 - Y2, % this flips the Y-positions... 
+	%C4 is 57 - Y2, % this flips the Y-positions...
 	C4 is 48 + Y2, % this doesn't
 
 	% write them to file

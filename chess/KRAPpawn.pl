@@ -10,12 +10,12 @@ else_rule :: if true
 
 % pieces of advice
 % structure:
-% advice( NAME, BETTERGOAL, HOLDINGGOAL: USMOVECONSTRAINT: 
+% advice( NAME, BETTERGOAL, HOLDINGGOAL: USMOVECONSTRAINT:
 %		THEMMOVECONSTRAINT
 
 
-advice( race_pawn, 
-	promoted :
+advice( race_pawn,
+	pawnpromoted,
 	not pawnlost :
 	pawnmove :
         legal ).
@@ -23,5 +23,6 @@ advice( race_pawn,
 advice( block_king,
 	king_blocked or not king_in_square,
 	not pawnlost :
+	kingdiagfirst :
 	legal ).
-	
+

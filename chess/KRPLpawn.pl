@@ -20,16 +20,13 @@ move(pawnmove, us..W..Px : Py..B..D, Px:Py - P, them..W..P..B..D1 ) :-
 
 	P \= Px:Py, % must move
 	P \= W, % can't move to occupied place
-	P \= B. % '' 
+	P \= B. % ''
 
-move(promotionmove, Pos, Px:Py - P, Pos1 ) :-
- 	wp( Pos, Px:7 ), % pawn must be one place away from opposite side
-
- 	P = Px:8, % moves up to the opposite side
-	move(pawnmove, Pos, Px:Py - P, Pos1).
-	
 pawnlost(_.._W..B..B.._,_).
 
 pawnlost( them..W..P..B.._,_) :-
 	ngb( B, P), %black king attacks pawn
-	not ngb( W, P).   %white king doesn't defend	
+	not ngb( W, P).   %white king doesn't defend
+
+pawnpromoted(Pos, _) :-
+	wp( Pos, _:8 ).
