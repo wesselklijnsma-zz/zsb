@@ -225,6 +225,20 @@ kings_close( Pos ) :-
 	dist( WK, BK, D ),
 	D < 4.
 
+closertopromotion( Pos, Root ) :-
+	wp( Pos, _:Py ),
+	wp( Root, _:RPy),
+	Py > RPy.
+closertocritical( Pos, Root ) :-
+	wp(Pos, W),
+	wp(Root, RW),
+	wp(Pos, P),
+	critpos(P, Crit),
+	member(X, Crit),
+	dist(W, X, D1),
+	dist(RW, X, D2),
+	D1 < D2.
+
 bk_in_square( Pos , _ ) :-
 	wp( Pos, Px:Py ),
 	Size is 8 - Py,
@@ -262,7 +276,7 @@ critpos( Px:Py, Cx:Cy ) :-
     in(Cx), in(Cy).
 critpos( Px:Py, Cx:Cy ) :-
     Px > 1, Px < 8,
-    Py =< 6, Py > 4
+    Py =< 6, Py > 4,
     (Cy is Py + 1;
     Cy is Py + 2),
     (Cx is Px - 1;
