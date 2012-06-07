@@ -231,11 +231,11 @@ closertopromotion( Pos, Root ) :-
 	wp( Root, _:RPy),
 	Py > RPy.
 closertocritical( Pos, Root ) :-
-	wp( Pos, WP ),
-	wk( Pos, WK ),
-	wk( Root, RootWK ),
-	
-	critpos( WP, C ),
+	wp( Pos, Px:Py ),
+	wk( Pos, WK ), 
+	wk( Root, RootWK ), 
+
+	critpos( Px:Py, WK, C ), 
 	dist( WK, C, KD ),
 	dist( RootWK, C, RootKD ),
 	RootKD > KD.
@@ -253,47 +253,18 @@ bk_in_square( Pos , _ ) :-
 wk_on_critical( Pos, _ ) :-
 	wp(Pos, WP),
     	wk(Pos, WK),
-    	critical(WP, Crit),
-    	member(WK, Crit).
+    	critpos(WP, WK, WK).
     
-critical( WP, Crit ) :-
-    findall(X, critpos(WP, X), Crit).
+%critical( WP, Crit ) :-
+%    findall(X, critpos(WP, X), Crit).
 
-critpos( 1:Py, 2:Cy ) :-
-    Py >= 5,
-    (Cy = 7;
-    Cy = 8).
-critpos( 8:Py, 7:Cy ) :-
-    Py >= 5,
-    (Cy = 7;
-    Cy = 8).
-critpos( Px:Py, Cx:Cy ) :-
-    Px > 1, Px < 8,
-    Py =< 4,
-    Cy is Py + 2,
-    (Cx is Px - 1;
-    Cx is Px + 1;
-    Cx = Px),
-    in(Cx), in(Cy).
-critpos( Px:Py, Cx:Cy ) :-
-    Px > 1, Px < 8,
-    Py =< 6, Py > 4,
-    (Cy is Py + 1;
-    Cy is Py + 2),
-    (Cx is Px - 1;
-    Cx is Px + 1;
-    Cx = Px),
-    in(Cx), in(Cy).
-critpos( Px:Py, Cx:Cy ) :-
-    Px > 1, Px < 8,
-    Py = 7,
-    (Cy is Py + 1;
-    Cy = Py),
-    (Cx is Px - 1;
-    Cx is Px + 1;
-    Cx = Px),
-    Px:Py \= Cx:Cy,
-    in(Cx), in(Cy).
+critpos( Px:Py, Kx:_, Cx:Py) :-
+	Kx >= Px
+	Cx is Px + 1.
+
+critpos( Px:Py, Kx:_, Cx:Py) :-
+	Kx < Px,
+	Cx is Px - 1.
 
 dist( X : Y, X1: Y1, D ) :-
 	absdiff( X, X1, Dx ),

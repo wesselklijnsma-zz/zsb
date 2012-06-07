@@ -3,10 +3,10 @@
 
 % all rules
 
-square_rule :: if wk_on_critical or not bk_in_square
+square_rule :: if wk_on_critical 
 	then [ promote_pawn, race_pawn, any_move ].
 blocking_rule :: if not wk_on_critical
-	then [ block_king, move_to_critical, any_move ].
+	then [  block_king, move_to_critical, any_move ].
 else_rule :: if true
 	then [ any_move ].
 
@@ -31,7 +31,7 @@ advice( promote_pawn,
 advice( block_king,
 	wk_on_critical :
 	not pawnlost :
-	(depth = 0) and kingdiagfirst :
+	(depth = 0) and pawnmove :
 	nomove ).
 
 advice( move_to_critical,
