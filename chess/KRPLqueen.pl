@@ -16,17 +16,42 @@ move(A,B,C,D):-
 move( queenmove, us..W..Qx:Qy..B..D, Qx:Qy - Q, them..W..Q..B..D1 ) :-
 	D1 is D + 1,
 	coord(I), % integer between 1 and 8
-	X is I - Qx, % diagonal move X
-	Y is I - Qy, % diagonal move Y
 	(
 		Q = I : Qy % horizontal move
 		;
 		Q = Qx : I % vertical move
 		;
-		Q = X : Y  % diagonal move	
+		(
+			X is I - Qx,
+			Y is I - Qy,
+			X > 0,
+			Y > 0,
+			Q = X : Y  % diagonal move	
+		)
 	),
 
 	Q \= Qx:Qy, % queen must have moved
 	Q \= W,	% white king can't occupy space	
 	Q \= B,	% black king can't occupy space
-	not inway(Qx:Qy, W, Q). % white king not inway
+	not inway(Qx:Qy, W, Q), % white king not inway
+	not inway(Qx:qy, B, Q). % black ' ' ' 
+
+move( legal, us..P, M, P1 ) :-
+	(
+		MC = kingdiagfirst
+	;
+		MC = queenmove
+	),
+	move( MC, us..P, M, P1 ).
+
+did_not_move_queen(Pos, Root) :-
+	wp(Pos, Q1),
+	wp(Root, Q2),
+	
+	Q1 = Q2.
+
+queenlost( _.._W..B..B.._ ,_).	% queen has been captured
+
+queenlost( them..W..Q..B.._ ,_) :-
+	ngb( B, Q ),	% black king attacks queen
+	not ngb( W, Q ).	% white king does not defend
