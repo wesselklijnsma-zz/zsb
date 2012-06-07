@@ -17,6 +17,7 @@ side( Side.._, Side ).			% side to move in position
 wk( _..WK.._, WK ).			% white king coordinate
 wp( _.._..WP.._, WP ).			% white rook coordinates
 bk( _.._.._..BK.._, BK ).		% black king coordinates
+wq( _.._..WQ.._, WQ ).			% white queen coordinates
 depth( _.._.._.._..Depth, Depth ).	% depth of position in search tree
 
 resetdepth( S..W..P..B.._D, S..W..P..B..0 ).	% copy of position with depth 0
