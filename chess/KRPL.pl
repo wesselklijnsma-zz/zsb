@@ -77,7 +77,7 @@ ngb( S, S1 ) :-
 	verngb( S, S1 ).
 
 end_of_game( Pos ):-
-	mate( Pos ).
+	pawnpromoted( Pos, _ ).
 
 coord(1).
 coord(2).
@@ -230,30 +230,30 @@ closertopromotion( Pos, Root ) :-
 	wp( Root, _:RPy),
 	Py > RPy.
 closertocritical( Pos, Root ) :-
-	wp(Pos, W),
-	wp(Root, RW),
-	wp(Pos, P),
-	critpos(P, Crit),
-	member(X, Crit),
-	dist(W, X, D1),
-	dist(RW, X, D2),
-	D1 < D2.
+	wp( Pos, WP ),
+	wk( Pos, WK ),
+	wk( Root, RootWK ),
+	
+	critpos( WP, C ),
+	dist( WK, C, KD ),
+	dist( RootWK, C, RootKD ),
+	RootKD > KD.
 
 bk_in_square( Pos , _ ) :-
 	wp( Pos, Px:Py ),
 	Size is 8 - Py,
+	bk( Pos, BK ),
 
-	move(kingdiagfirst, Pos, _, Pos1),
-	bk( Pos1, NKx:NKy ),
+	ngb( BK, NKx:NKy ),
 	NKy > 8 - Size - 1,
 	NKx =< Px + Size,
 	NKx >= Px - Size.
 
 wk_on_critical( Pos, _ ) :-
-    wp(Pos, WP),
-    wk(Pos, WK),
-    critical(WP, Crit),
-    member(WK, Crit).
+	wp(Pos, WP),
+    	wk(Pos, WK),
+    	critical(WP, Crit),
+    	member(WK, Crit).
     
 critical( WP, Crit ) :-
     findall(X, critpos(WP, X), Crit).
