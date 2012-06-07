@@ -1,3 +1,13 @@
+%
+% Names       : Jouke van der Maas & Wessel Klijnsma
+% Student IDs : 10186883 and 10172432
+% Description : Part of solution to King and Pawn vs. Pawn chess problem
+% Date        : June 2012
+% Comments    : Most of this file was copied from Prolog Programming for
+%		Artificial Intelligence by Ivan Bratko. Only slight changes 
+%		have been made to variable names and the end_of_game/1 predicate.
+%
+
 % -*- Mode: Prolog -*-
 % $Id: KRPL.pl,v 1.14 2008/06/10 11:10:53 obooij Exp $
 % from Prolog Programming for AI, Bratko p. 604
@@ -17,7 +27,6 @@ side( Side.._, Side ).			% side to move in position
 wk( _..WK.._, WK ).			% white king coordinate
 wp( _.._..WP.._, WP ).			% white rook coordinates
 bk( _.._.._..BK.._, BK ).		% black king coordinates
-wq( _.._..WQ.._, WQ ).			% white queen coordinates
 depth( _.._.._.._..Depth, Depth ).	% depth of position in search tree
 
 resetdepth( S..W..P..B.._D, S..W..P..B..0 ).	% copy of position with depth 0
@@ -77,6 +86,7 @@ ngb( S, S1 ) :-
 ngb( S, S1 ) :-
 	verngb( S, S1 ).
 
+% The game ends when the pawn gets promoted.
 end_of_game( Pos ):-
 	pawnpromoted( Pos, _ ).
 
@@ -121,7 +131,7 @@ check( _US..W.._P..B.. _D ) :-
 	ngb( W, B ).
 
 % pawn is directly diagonal
-check( _US..W..Px : Py..Bx : By.. _D ) :-
+check( _US.._W..Px : Py..Bx : By.. _D ) :-
 	( Px is Bx - 1
 	  ;
 	  Px is Bx + 1
@@ -225,46 +235,6 @@ kings_close( Pos ) :-
 	bk( Pos, BK ),
 	dist( WK, BK, D ),
 	D < 4.
-
-closertopromotion( Pos, Root ) :-
-	wp( Pos, _:Py ),
-	wp( Root, _:RPy),
-	Py > RPy.
-closertocritical( Pos, Root ) :-
-	wp( Pos, Px:Py ),
-	wk( Pos, WK ), 
-	wk( Root, RootWK ), 
-
-	critpos( Px:Py, WK, C ), 
-	dist( WK, C, KD ),
-	dist( RootWK, C, RootKD ),
-	RootKD > KD.
-
-bk_in_square( Pos , _ ) :-
-	wp( Pos, Px:Py ),
-	Size is 8 - Py,
-	bk( Pos, BK ),
-
-	ngb( BK, NKx:NKy ),
-	NKy > 8 - Size - 1,
-	NKx =< Px + Size,
-	NKx >= Px - Size.
-
-wk_on_critical( Pos, _ ) :-
-	wp(Pos, WP),
-    	wk(Pos, WK),
-    	critpos(WP, WK, WK).
-    
-%critical( WP, Crit ) :-
-%    findall(X, critpos(WP, X), Crit).
-
-critpos( Px:Py, Kx:_, Cx:Py) :-
-	Kx >= Px
-	Cx is Px + 1.
-
-critpos( Px:Py, Kx:_, Cx:Py) :-
-	Kx < Px,
-	Cx is Px - 1.
 
 dist( X : Y, X1: Y1, D ) :-
 	absdiff( X, X1, Dx ),
