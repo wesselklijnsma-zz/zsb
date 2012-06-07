@@ -13,14 +13,20 @@ mode(pawn).
 move(A,B,C,D):-
         moveGeneral(A,B,C,D).
 
-move(pawnmove, us..W..Px : Py..B..D, Px:Py - P, them..W..P..B..D1 ) :-
+move(pawnmove, us..W..Px:Py..B..D, Px:Py - P, them..W..P..B..D1 ) :-
 	D1 is D + 1,
 
-	P is Py + 1, % moves pawn up one place
-
+	NPy is Py + 1, % moves pawn up one place
+	P = Px:NPy,
 	P \= Px:Py, % must move
 	P \= W, % can't move to occupied place
 	P \= B. % ''
+
+move(legal, us..P, M, P1) :-
+	( MC = kingdiagfirst
+		;
+	  MC = pawnmove),
+	move(MC, us..P, M, P1). 
 
 pawnlost(_.._W..B..B.._,_).
 
