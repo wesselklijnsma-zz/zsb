@@ -54,23 +54,27 @@ one turn, and \wk the other. If \bk blocks \wk's path, it moves to the other sid
 will guarantee a promotion if \wk can reach \wp before \bk can.
 
 \section{Other solutions}
+\label{sec:other}
 The solution described in section \ref{sec:strategy} works, but it is not optimal. In order for \wk to
 reach \wp, it has to move further than strictly necessary. The black king can be blocked succesfully by
 moving to one of the three squares in front of the pawn, leaving one square open (see figure 
 \ref{fig:keysquares}). 
 \begin{figure}[htb]
 \centering
-\includegraphics{keysquares.png}
+\includegraphics[scale = 0.65]{keysquares.png}
 \caption{Critical squares for the white king to reach.}
 \label{fig:keysquares}
 \end{figure}
 This strategy would work in more cases than the one described in section
 \ref{sec:strategy}, because there are situations where \wk can reach one of those squares in time, but
 not get directly next to \wp. The disadvantage is that is much more complicated, since there are now
-more options for \bk to interfere with \wk's movement.
+more options for \bk to interfere with \wk's movement
 
 \section{Testing}
+The developed strategy had to be tested for various board settings. Depending on how the program performed, adjustments to the strategy were made, making it more advanced. At first \wk would move directly next to \wp and \wp would move forward one step. This worked for basic board settings but failed to deliver a win in more advanced ones. By changing the strategy (i.e. moving \wk around \wp, \wk one square in front of \wk) the program was able win more advanced board settings.
 
+\section{Conclusion}
+Although the developed solution works in a lot of boards settings, it's not a optimal solution. There are some board setting, in which a win is possible, the program fails to deliver this win. One way to improve the solution is to implement the solution described in section \ref{sec:other}. This was to complex for us to implement in such a short time but can provide a full solution.
 
 \end{document}
 
