@@ -1,0 +1,17 @@
+Black computer White Human 1
+Castled White false Black false
+TimeControl 0 Operator Time 0
+White Clock 0 Moves 0
+Black Clock 0 Moves 0
+
+8 Q....... 0 0 0 0 0 0 0 0
+7 ..K...p. 0 0 0 0 0 0 0 0
+6 .....p.. 0 0 0 0 0 0 0 0
+5 ....p... 0 0 0 0 0 0 0 0
+4 .....p.. 0 0 0 0 0 0 0 0
+3 ....p.rP 0 0 0 0 0 0 0 0
+2 .....p.k 0 0 0 0 0 0 0 0
+1 ...q..p. 0 0 0 0 0 0 0 0
+  abcdefgh
+
+move  score depth  nodes  time flags capture color
