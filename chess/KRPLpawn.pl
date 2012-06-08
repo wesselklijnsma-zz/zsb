@@ -67,8 +67,8 @@ closer_to_promotion( Pos, Root ) :-
 % isn't lost.
 promotion_possible( Pos, _ ) :-
 	move(pawnmove, Pos, _, Pos1),
-	pawnpromoted(Pos1, _),
-	\+ pawnlost(Pos1, _).
+	pawn_promoted(Pos1, _),
+	\+ pawn_lost(Pos1, _).
 
 % The white king is closer to a 'critical' square if the distance between its
 % position and the square is getting smaller.

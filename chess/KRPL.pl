@@ -88,7 +88,7 @@ ngb( S, S1 ) :-
 
 % The game ends when the pawn gets promoted.
 end_of_game( Pos ):-
-	pawnpromoted( Pos, _ ).
+	pawn_promoted( Pos, _ ).
 
 coord(1).
 coord(2).
