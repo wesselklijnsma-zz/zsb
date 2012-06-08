@@ -7,7 +7,7 @@
 
 
 else_rule :: if true
-	then [ move_random ].
+	then [ any_move ].
 
 % pieces of advice
 % structure:
@@ -15,7 +15,7 @@ else_rule :: if true
 %		THEMMOVECONSTRAINT
 
 
-advice( move_random, 
+advice( any_move, 
 	not did_not_move_queen :
 	not queenlost :
 	(depth = 0) and queenmove :
