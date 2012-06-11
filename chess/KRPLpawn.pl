@@ -102,13 +102,13 @@ pawn_protected( Pos, _ ) :-
 % squares that share one side, and the black king can be in one of them at a time.
 bk_in_square( Pos , _ ) :-
 	wp( Pos, Px:Py ),
-        bk_square_side(Px:Py, Side), write(Side), nl,
-	bk( Pos, BK ), write(BK),
+        bk_square_side(Px:Py,
+	bk( Pos, BK ),
 
 	ngb( BK, NKx:NKy ),
 	NKy > 8 - Side - 1,
 	NKx =< Px + Side,
-	NKx >= Px - Side, write(Px - Side).
+	NKx >= Px - Side.
 
 bk_square_side(_:2, 5).
 bk_square_side(_:Y, Side) :-
