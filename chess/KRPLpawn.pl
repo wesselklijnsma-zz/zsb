@@ -34,10 +34,6 @@ move(pawnmove, us..W..Px:Py..B..D, Px:Py - P, them..W..P..B..D1 ) :-
 	P \= W, % can't move to occupied place
 	P \= B.
 
-pawnmove(X:2, X:4).
-pawnmove(X:Y, X:Y1) :-
-    Y1 is Y + 1.
-
 % Define legal moves. Since there's only a king and a pawn, theirs are the
 % only  legal moves.
 move(legal, us..P, M, P1) :-
@@ -45,6 +41,10 @@ move(legal, us..P, M, P1) :-
 		;
 	  MC = pawnmove),
 	move(MC, us..P, M, P1). 
+
+pawnmove(X:2, X:4).
+pawnmove(X:Y, X:Y1) :-
+    Y1 is Y + 1.
 
 % If the black king occupies the same space as the white pawn, it has been
 % taken.
@@ -102,25 +102,24 @@ pawn_protected( Pos, _ ) :-
 % squares that share one side, and the black king can be in one of them at a time.
 bk_in_square( Pos , _ ) :-
 	wp( Pos, Px:Py ),
-        bk_square_side(Px:Py, Side),
-	bk( Pos, BK ),
+        bk_square_side(Px:Py, Side), write(Side), nl,
+	bk( Pos, BK ), write(BK),
 
 	ngb( BK, NKx:NKy ),
 	NKy > 8 - Side - 1,
 	NKx =< Px + Side,
-	NKx >= Px - Side.
+	NKx >= Px - Side, write(Px - Side).
 
-bk_square_side(2:Y, Side) :-
-    Side is 7 - Y.
+bk_square_side(_:2, 5).
 bk_square_side(_:Y, Side) :-
-    Side is 8 - Y.
+	Side is 8 - Y.
 
 % True if the white king is directly adjacent to the white pawn and they have
 % the same x coordinate.
 wk_on_critical( Pos, _ ) :-
 	wp(Pos, WP),
     	wk(Pos, WK),
-    	crits_quare(WP, WK).
+    	crit_square(WP, WK).
 
 % If two positions are the same, nothing happened.
 did_not_move( Pos, Pos ).
