@@ -28,11 +28,15 @@ move(A,B,C,D):-
 move(pawnmove, us..W..Px:Py..B..D, Px:Py - P, them..W..P..B..D1 ) :-
 	D1 is D + 1,
 
-	NPy is Py + 1, % moves pawn up one place
+        pawnmove(Px:Py, Px:NPy),
 	P = Px:NPy,
 	P \= Px:Py, % must move
 	P \= W, % can't move to occupied place
 	P \= B.
+
+pawnmove(X:2, X:4).
+pawnmove(X:Y, X:Y1) :-
+    Y1 is Y + 1.
 
 % Define legal moves. Since there's only a king and a pawn, theirs are the
 % only  legal moves.
@@ -98,13 +102,18 @@ pawn_protected( Pos, _ ) :-
 % squares that share one side, and the black king can be in one of them at a time.
 bk_in_square( Pos , _ ) :-
 	wp( Pos, Px:Py ),
-	Side is 8 - Py,
+        bk_square_side(Px:Py, Side),
 	bk( Pos, BK ),
 
 	ngb( BK, NKx:NKy ),
 	NKy > 8 - Side - 1,
 	NKx =< Px + Side,
 	NKx >= Px - Side.
+
+bk_square_side(2:Y, Side) :-
+    Side is 7 - Y.
+bk_square_side(_:Y, Side) :-
+    Side is 8 - Y.
 
 % True if the white king is directly adjacent to the white pawn and they have
 % the same x coordinate.
