@@ -154,23 +154,28 @@ class StudentBoardTrans
      * board always lies flat on the table.
      */
 
-    //Point result = new Point ();
-    //double dx, dy;
+    double ds = 38.50;
+    double posx = -138.75; 
+    double posy = 468.75;   
+    double x, y, z;
+    
+    x = posx + column * ds;      
+    y = posy - row * ds;
+    z = 18.00;     
+    double cos = Math.cos(Math.toRadians(board.theta));
+    double sin = Math.sin(Math.toRadians(board.theta));
 
-    //ds = 38.50
-    Point a = new Point(1, 2, 3);
+    Point a = new Point(x, y, z);
     double[][] trans = 
-        {{2, 0, 0},
-        {0, 2, 0},
-        {0, 0, 2}};
-    Point b = doTransformation(trans, a);
+       {{ cos,  sin, 0},
+        {-sin,  cos, 0},
+        {   0,    0, 1}};
+    Point result = doTransformation(trans, a);
        
 
-    //result.x = -138.75 + column * dx;      
-    //result.y = 468.75 - row * dy;
-    //result.z = 18.00;
+
     
-    return b;
+    return result;
   }
 
   private Point doTransformation(double[][] matrix, Point vector) 
