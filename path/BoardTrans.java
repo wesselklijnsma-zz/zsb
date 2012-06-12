@@ -168,9 +168,26 @@ class StudentBoardTrans
     public BoardLocation()
     {
       // write this function. Compute the row and column correspoding to String pos.
-
-      row=23; // ????
-      column=23; // ????
+      switch(pos.charAt(0)) {
+         case 'a': column = 0;
+         break;
+         case 'b': column = 1;
+         break;
+         case 'c': column = 2;
+         break;
+         case 'd': column = 3;
+         break;
+         case 'e': column = 4;
+         break;
+         case 'f': column = 5;
+         break;
+         case 'g': column = 6;
+         break;
+         case 'h': column = 7;
+         break;
+      }
+            
+      row= Character.getNumericValue(pos.charAt(1)) - 1;
     }
   }
 }
