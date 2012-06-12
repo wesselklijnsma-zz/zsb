@@ -154,18 +154,40 @@ class StudentBoardTrans
      * board always lies flat on the table.
      */
 
-    Point result = new Point ();
-    double dx, dy;
+    //Point result = new Point ();
+    //double dx, dy;
 
-    ds = 38.50
-    
+    //ds = 38.50
+    Point a = new Point(1, 2, 3);
+    double[][] trans = 
+        {{2, 0, 0},
+        {0, 2, 0},
+        {0, 0, 2}};
+    Point b = doTransformation(trans, a);
        
 
-    result.x = -138.75 + column * dx;      
-    result.y = 468.75 - row * dy;
-    result.z = 18.00;
+    //result.x = -138.75 + column * dx;      
+    //result.y = 468.75 - row * dy;
+    //result.z = 18.00;
     
-    return(result);
+    return b;
+  }
+
+  private Point doTransformation(double[][] matrix, Point vector) 
+  {
+    if(matrix.length != 3)
+        throw new IllegalArgumentException("Matrix must have 3 columns");
+
+    double[] oldVec = {vector.x, vector.y, vector.z};
+    double[] newVec = {0, 0, 0};
+    for(int c = 0; c < matrix.length; c++)
+    {
+        for(int r = 0; r < matrix[c].length; r++)
+        {
+            newVec[r] += matrix[c][r] * oldVec[c];
+        }
+    }
+    return new Point(newVec[0], newVec[1], newVec[2]);
   }
 
   class BoardLocation{

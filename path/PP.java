@@ -45,7 +45,7 @@ public class PP {
   private static double CLOSED_GRIP=0;
 
   public static void main(String[] args){
-    Vector p<GripperPosition> = new Vector<GripperPosition>();
+    Vector<GripperPosition> p = new Vector<GripperPosition>();
     ChessBoard b;
     String computerFrom, computerTo;
 
@@ -101,17 +101,34 @@ public class PP {
 
     System.out.println("**** In high path"); 
 
-    // ???? Write this function
-
+    double pieceHeight = 20;
     // Use the boardLocation and toCartesian methods you wrote:
-    StudentBoardTrans studentBoardTrans = new StudentBoardTrans(from);
+    StudentBoardTrans fromTrans = new StudentBoardTrans(from);
+    StudentBoardTrans toTrans = new StudentBoardTrans(to);
 
-    /* Example of getting the columns and the row indices:
-     * fromColumn = studentBoardTrans.boardLocation.column;
-     * fromRow = studentBoardTrans.boardLocation.row;
-     */
+    fromColumn = fromTrans.boardLocation.column;
+    fromRow = fromTrans.boardLocation.row;
+    toColumn = toTrans.boardLocation.column;
+    toRow = toTrans.boardLocation.row;
 
+    Point startPoint = fromTrans.toCartesian();
+    Point endPoint = toTrans.toCartesian();
 
+    // getting the piece
+    p.add(new GripperPosition(addVerticalOffset(startPoint, SAFE_HEIGHT), 0, OPEN_GRIP));
+    p.add(new GripperPosition(addVerticalOffset(startPoint, LOW_HEIGHT), 0, OPEN_GRIP));
+    p.add(new GripperPosition(addVerticalOffset(startPoint, pieceHeight / 2), 0, OPEN_GRIP));
+    p.add(new GripperPosition(addVerticalOffset(startPoint, pieceHeight / 2), 0, CLOSED_GRIP));
+    p.add(new GripperPosition(addVerticalOffset(startPoint, SAFE_HEIGHT), 0, CLOSED_GRIP));
+    
+    // putting it in its new spot
+    p.add(new GripperPosition(addVerticalOffset(endPoint, SAFE_HEIGHT), 0, CLOSED_GRIP));
+    p.add(new GripperPosition(addVerticalOffset(endPoint, LOW_HEIGHT + pieceHeight / 2), 0, CLOSED_GRIP));
+    p.add(new GripperPosition(addVerticalOffset(endPoint, LOW_HEIGHT / 2 + pieceHeight / 2), 0, CLOSED_GRIP));
+    p.add(new GripperPosition(addVerticalOffset(endPoint, pieceHeight / 2), 0, OPEN_GRIP));
+    p.add(new GripperPosition(addVerticalOffset(endPoint, SAFE_HEIGHT), 0, OPEN_GRIP));
+
+    System.out.println(p);
     /* Example of adding a gripperposition to Vector p.
      * Point tempPoint;
      * GripperPosition temp;
@@ -119,6 +136,13 @@ public class PP {
      * temp = new GripperPosition(tempPoint, angle, CLOSED_GRIP/OPEN_GRIP);
      * Now you only have to add it at the end of Vector p.
      */
+  }
+
+  private static Point addVerticalOffset(Point p, double offset)
+  {
+    Point pNew = p.clone();
+    pNew.z += offset;
+    return pNew;
   }
 
   private static void moveToGarbage(String to, ChessBoard b, Vector<GripperPosition> g) {
