@@ -111,8 +111,8 @@ public class PP {
     toColumn = toTrans.boardLocation.column;
     toRow = toTrans.boardLocation.row;
 
-    Point startPoint = fromTrans.toCartesian();
-    Point endPoint = toTrans.toCartesian();
+    Point startPoint = fromTrans.toCartesian(fromColumn, fromRow);
+    Point endPoint = toTrans.toCartesian(toColum, toRow);
 
     // getting the piece
     p.add(new GripperPosition(addVerticalOffset(startPoint, SAFE_HEIGHT), 0, OPEN_GRIP));

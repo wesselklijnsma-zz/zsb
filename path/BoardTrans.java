@@ -154,45 +154,65 @@ class StudentBoardTrans
      * board always lies flat on the table.
      */
 
-    double ds = 38.50;
-    double posx = -138.75; 
-    double posy = 468.75;   
-    double x, y, z;
-    
-    x = posx + column * ds;      
-    y = posy - row * ds;
-    z = 18.00;     
-    double cos = Math.cos(Math.toRadians(board.theta));
-    double sin = Math.sin(Math.toRadians(board.theta));
-
-    Point a = new Point(x, y, z);
-    double[][] trans = 
-       {{ cos,  sin, 0},
-        {-sin,  cos, 0},
-        {   0,    0, 1}};
-    Point result = doTransformation(trans, a);
+    //double ds = 38.50;
+    //double posx = -138.75; 
+    //double posy = 468.75;   
+    //double x, y, z;
+    //
+    //x = posx + column * ds;      
+    //y = posy - row * ds;
+    //z = 18.00;     
+    //double cos = Math.cos(Math.toRadians(board.theta));
+    //double sin = Math.sin(Math.toRadians(board.theta));
+//
+    //Point a = new Point(x, y, z);
+    //double[][] trans = 
+       //{{ cos,  sin, 0},
+        //{-sin,  cos, 0},
+        //{   0,    0, 1}};
+    //Point result = doTransformation(trans, a);
        
-
+    double[][] a =
+    {{ 1, 2 },
+     { 2, 1 }};
+    double[][] b =
+    {{ 3, 4 },
+     { 4, 3 }};
+    
+    System.out.println(matrixMultiplication(a, b));
 
     
-    return result;
+    return new Point();//result;
   }
 
-  private Point doTransformation(double[][] matrix, Point vector) 
+  private double[] doTransformation(double[][] matrix, double[] vector) 
   {
-    if(matrix.length != 3)
-        throw new IllegalArgumentException("Matrix must have 3 columns");
-
-    double[] oldVec = {vector.x, vector.y, vector.z};
-    double[] newVec = {0, 0, 0};
+    double[] newVec = new double[matrix[0].length];
     for(int c = 0; c < matrix.length; c++)
     {
         for(int r = 0; r < matrix[c].length; r++)
         {
-            newVec[r] += matrix[c][r] * oldVec[c];
+            newVec[r] += matrix[c][r] * vector[c];
         }
     }
-    return new Point(newVec[0], newVec[1], newVec[2]);
+    return newVec;
+  }
+  private double[][] matrixMultiplication(double[][] a, double[][] b)
+  {
+    double[][] result = new double[b.length][];
+    double[] vec;
+    for(int i = 0; i < b.length; i++) 
+    {
+        for(int c = 0; c < a.length; c++)
+        {
+            for(int r = 0; r < a[c].length; r++)
+            {
+               vec = b[i];
+               result[i] = doTransformation(a, vec);
+            }
+        }
+    }
+    return result;
   }
 
   class BoardLocation{
