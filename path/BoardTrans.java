@@ -155,10 +155,15 @@ class StudentBoardTrans
      */
 
     Point result = new Point ();
+    double dx, dy;
+
+    ds = 38.50
     
-    result.x = 23; // ????
-    result.y = 23; // ????
-    result.z = 23; // ????
+       
+
+    result.x = -138.75 + column * dx;      
+    result.y = 468.75 - row * dy;
+    result.z = 18.00;
     
     return(result);
   }
