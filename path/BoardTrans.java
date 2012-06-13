@@ -69,7 +69,9 @@ class BoardTrans
          boardTrans.board.coords.y
          );
  
-      ChessPiece p = boardTrans.getPiece(boardTrans.boardLocation, boardTrans.board.aliveChessPieces);
+      ChessPiece p = boardTrans.board.hasPiece(boardTrans.pos)
+          ? boardTrans.board.getPiece(boardTrans.pos)
+          : null;
       if(p != null)
       {
           System.out.println("The height of the piece at " + boardTrans.pos + " is " +
