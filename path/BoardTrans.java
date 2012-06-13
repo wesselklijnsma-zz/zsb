@@ -26,6 +26,7 @@
 
 import java.io.*;
 import java.lang.*;
+import java.util.Vector;
 import java.util.List;
 import java.util.Arrays;
 
@@ -57,24 +58,28 @@ class BoardTrans
      */
     try {  
       System.out.println("The dimensions of the squares on the board are " +
-         // ????
+         boardTrans.board.delta_x +
          " by " +
-         // ????
+         boardTrans.board.delta_y +
          "mm");
   
       System.out.println("The x,y coordinates of the board are " +
-         // ????
-         ","
-         // ????
+         boardTrans.board.coords.x +
+         "," +
+         boardTrans.board.coords.y
          );
-  
-      System.out.println("The height of the piece at " + boardTrans.pos + " is " +
-         // ????
-         " mm");
+ 
+      ChessPiece p = getPiece(boardTrans.boardLocation, boardTrans.board.aliveChessPieces);
+      if(p != null)
+      {
+          System.out.println("The height of the piece at " + boardTrans.pos + " is " +
+             p.height +
+             " mm");
     
-      System.out.println("The color of the piece at " + boardTrans.pos + " is "
-             // ????
-             );
+          System.out.println("The color of the piece at " + boardTrans.pos + " is " +
+                     p.side
+                 );
+      }
     } catch (Exception e) {
       System.out.println(e);
       System.exit(1);
@@ -131,6 +136,16 @@ class BoardTrans
                        ", the correct answer is " +
                        boardTrans.board.toCartesian(boardTrans.pos));
   }
+
+  private static ChessPiece getPiece(StudentBoardTrans.BoardLocation loc, Vector<ChessPiece> pieces)
+  {
+    for(ChessPiece p : pieces)
+    {
+        if(p.location.column == loc.column && p.location.row == loc.row)
+            return p;
+    }
+    return null;
+  }
 }
 
 class StudentBoardTrans
@@ -154,35 +169,27 @@ class StudentBoardTrans
      * board always lies flat on the table.
      */
 
-    //double ds = 38.50;
-    //double posx = -138.75; 
-    //double posy = 468.75;   
-    //double x, y, z;
-    //
-    //x = posx + column * ds;      
-    //y = posy - row * ds;
-    //z = 18.00;     
-    //double cos = Math.cos(Math.toRadians(board.theta));
-    //double sin = Math.sin(Math.toRadians(board.theta));
-//
-    //Point a = new Point(x, y, z);
-    //double[][] trans = 
-       //{{ cos,  sin, 0},
-        //{-sin,  cos, 0},
-        //{   0,    0, 1}};
-    //Point result = doTransformation(trans, a);
-       
-    double[][] a =
-    {{ 1, 2 },
-     { 2, 1 }};
-    double[][] b =
-    {{ 3, 4 },
-     { 4, 3 }};
+    double dx = board.delta_x;
+    double dy = board.delta_y;
+    double posx = board.coords.x - board.sur_x;
+    double posy = board.coords.y + board.sur_y;   
+    double x, y, z;
     
-    System.out.println(matrixMultiplication(a, b));
+    x = posx - (8 - column) * dx + dx / 2;      
+    y = posy + (8 - row) * dy - dy / 2;
+    z = board.board_thickness;     
 
-    
-    return new Point();//result;
+    double xshift = board.coords.x;// - board.sur_x;
+    double yshift = board.coords.y;// + board.sur_y;
+    double cos = Math.cos(Math.toRadians(board.theta));
+    double sin = Math.sin(Math.toRadians(board.theta));
+
+    double[] vec = {x - xshift, y - yshift};
+    double[][] trans = 
+       {{ cos, -sin},
+        {sin,  cos}};
+    double[] newVec = doTransformation(trans, vec);
+    return new Point(newVec[0] + xshift, newVec[1] + yshift, z);
   }
 
   private double[] doTransformation(double[][] matrix, double[] vector) 
@@ -196,23 +203,6 @@ class StudentBoardTrans
         }
     }
     return newVec;
-  }
-  private double[][] matrixMultiplication(double[][] a, double[][] b)
-  {
-    double[][] result = new double[b.length][];
-    double[] vec;
-    for(int i = 0; i < b.length; i++) 
-    {
-        for(int c = 0; c < a.length; c++)
-        {
-            for(int r = 0; r < a[c].length; r++)
-            {
-               vec = b[i];
-               result[i] = doTransformation(a, vec);
-            }
-        }
-    }
-    return result;
   }
 
   class BoardLocation{
