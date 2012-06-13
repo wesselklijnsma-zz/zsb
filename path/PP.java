@@ -44,7 +44,7 @@ public class PP {
   private static double OPEN_GRIP=30;
   private static double CLOSED_GRIP=0;
 
-  public static void main(String[] args){
+  public static void main(String[] args) throws ChessBoard.NoPieceAtPositionException {
     Vector<GripperPosition> p = new Vector<GripperPosition>();
     ChessBoard b;
     String computerFrom, computerTo;
@@ -79,13 +79,16 @@ public class PP {
     
     /* plan a path for the move */
     highPath(computerFrom, computerTo, b, p);
+    
+    if(b.hasPiece(computerTo))
+        moveToGarbage(computerTo, b, p);
 
     /* move the computer piece */
     try {
-      b.movePiece(computerFrom, computerTo);
+    b.movePiece(computerFrom, computerTo);
     } catch (ChessBoard.NoPieceAtPositionException e) {
-      System.out.println(e);
-      System.exit(1);
+    System.out.println(e);
+    System.exit(1);
     }
 
     System.out.println("**** The board after the move was:");       
@@ -97,22 +100,38 @@ public class PP {
   }
 
   private static void highPath(String from, String to, 
-           ChessBoard b, Vector<GripperPosition> p) {
+           ChessBoard b, Vector<GripperPosition> p) throws ChessBoard.NoPieceAtPositionException
+  {
 
     System.out.println("**** In high path"); 
 
-    double pieceHeight = 20;
+    double pieceHeight = b.getPiece(from).height;
+
     // Use the boardLocation and toCartesian methods you wrote:
     StudentBoardTrans fromTrans = new StudentBoardTrans(from);
     StudentBoardTrans toTrans = new StudentBoardTrans(to);
 
-    fromColumn = fromTrans.boardLocation.column;
-    fromRow = fromTrans.boardLocation.row;
-    toColumn = toTrans.boardLocation.column;
-    toRow = toTrans.boardLocation.row;
+    int fromColumn = fromTrans.boardLocation.column;
+    int fromRow = fromTrans.boardLocation.row;
+    int toColumn = toTrans.boardLocation.column;
+    int toRow = toTrans.boardLocation.row;
 
-    Point startPoint = fromTrans.toCartesian();
-    Point endPoint = toTrans.toCartesian();
+    Point startPoint = fromTrans.toCartesian(fromColumn, fromRow);
+    Point endPoint = toTrans.toCartesian(toColumn, toRow);
+
+    moveGripper(startPoint, endPoint, pieceHeight, p);
+    System.out.println(p);
+    /* Example of adding a gripperposition to Vector p.
+     * Point tempPoint;
+     * GripperPosition temp;
+     * tempPoint = new Point(x-coordinate, y-coordinate, z-coordinate);
+     * temp = new GripperPosition(tempPoint, angle, CLOSED_GRIP/OPEN_GRIP);
+     * Now you only have to add it at the end of Vector p.
+     */
+  }
+
+  private static void moveGripper(Point startPoint, Point endPoint, double pieceHeight, 
+                                  Vector<GripperPosition> p) {
 
     // getting the piece
     p.add(new GripperPosition(addVerticalOffset(startPoint, SAFE_HEIGHT), 0, OPEN_GRIP));
@@ -127,33 +146,39 @@ public class PP {
     p.add(new GripperPosition(addVerticalOffset(endPoint, LOW_HEIGHT / 2 + pieceHeight / 2), 0, CLOSED_GRIP));
     p.add(new GripperPosition(addVerticalOffset(endPoint, pieceHeight / 2), 0, OPEN_GRIP));
     p.add(new GripperPosition(addVerticalOffset(endPoint, SAFE_HEIGHT), 0, OPEN_GRIP));
-
-    System.out.println(p);
-    /* Example of adding a gripperposition to Vector p.
-     * Point tempPoint;
-     * GripperPosition temp;
-     * tempPoint = new Point(x-coordinate, y-coordinate, z-coordinate);
-     * temp = new GripperPosition(tempPoint, angle, CLOSED_GRIP/OPEN_GRIP);
-     * Now you only have to add it at the end of Vector p.
-     */
   }
 
   private static Point addVerticalOffset(Point p, double offset)
   {
-    Point pNew = p.clone();
+    Point pNew = (Point)p.clone();
     pNew.z += offset;
     return pNew;
   }
 
-  private static void moveToGarbage(String to, ChessBoard b, Vector<GripperPosition> g) {
+  private static void moveToGarbage(String to, ChessBoard b, Vector<GripperPosition> g) 
+      throws ChessBoard.NoPieceAtPositionException 
+  {
 
     /* When you're done with highPath(), incorporate this function.
-     * It should remove a checked piece from the board.
-     * In main() you have to detect if the computer move checks a white
-     * piece, and if so call this function to remove the white piece from
-     * the board first.
-     */
-    System.out.println("**** In movoToGarbage"); 
+    * It should remove a checked piece from the board.
+    * In main() you have to detect if the computer move checks a white
+    * piece, and if so call this function to remove the white piece from
+    * the board first.
+    */
+    System.out.println("**** In moveToGarbage");
+    
+    double pieceHeight = b.getPiece(to).height;
+    
+    StudentBoardTrans fromTrans = new StudentBoardTrans(to); 
+    int fromColumn = fromTrans.boardLocation.column;
+    int fromRow = fromTrans.boardLocation.row;
+
+    Point startPoint = fromTrans.toCartesian(fromColumn, fromRow);
+    Point endPoint = fromTrans.toCartesian(-1, fromRow);
+     
+
+    moveGripper(startPoint, endPoint, pieceHeight, g);
+     
 
   }
 }
