@@ -69,7 +69,7 @@ class BoardTrans
          boardTrans.board.coords.y
          );
  
-      ChessPiece p = getPiece(boardTrans.boardLocation, boardTrans.board.aliveChessPieces);
+      ChessPiece p = boardTrans.getPiece(boardTrans.boardLocation, boardTrans.board.aliveChessPieces);
       if(p != null)
       {
           System.out.println("The height of the piece at " + boardTrans.pos + " is " +
@@ -137,15 +137,6 @@ class BoardTrans
                        boardTrans.board.toCartesian(boardTrans.pos));
   }
 
-  private static ChessPiece getPiece(StudentBoardTrans.BoardLocation loc, Vector<ChessPiece> pieces)
-  {
-    for(ChessPiece p : pieces)
-    {
-        if(p.location.column == loc.column && p.location.row == loc.row)
-            return p;
-    }
-    return null;
-  }
 }
 
 class StudentBoardTrans
@@ -179,8 +170,8 @@ class StudentBoardTrans
     y = posy + (8 - row) * dy - dy / 2;
     z = board.board_thickness;     
 
-    double xshift = board.coords.x;// - board.sur_x;
-    double yshift = board.coords.y;// + board.sur_y;
+    double xshift = board.coords.x;
+    double yshift = board.coords.y;
     double cos = Math.cos(Math.toRadians(board.theta));
     double sin = Math.sin(Math.toRadians(board.theta));
 
@@ -203,6 +194,16 @@ class StudentBoardTrans
         }
     }
     return newVec;
+  }
+  
+  public static ChessPiece getPiece(StudentBoardTrans.BoardLocation loc, Vector<ChessPiece> pieces)
+  {
+    for(ChessPiece p : pieces)
+    {
+        if(p.location.column == loc.column && p.location.row == loc.row)
+            return p;
+    }
+    return null;
   }
 
   class BoardLocation{
