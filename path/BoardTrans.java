@@ -26,6 +26,7 @@
 
 import java.io.*;
 import java.lang.*;
+import java.util.Vector;
 import java.util.List;
 import java.util.Arrays;
 
@@ -57,24 +58,28 @@ class BoardTrans
      */
     try {  
       System.out.println("The dimensions of the squares on the board are " +
-         // ????
+         boardTrans.board.delta_x +
          " by " +
-         // ????
+         boardTrans.board.delta_y +
          "mm");
   
       System.out.println("The x,y coordinates of the board are " +
-         // ????
-         ","
-         // ????
+         boardTrans.board.coords.x +
+         "," +
+         boardTrans.board.coords.y
          );
-  
-      System.out.println("The height of the piece at " + boardTrans.pos + " is " +
-         // ????
-         " mm");
+ 
+      ChessPiece p = boardTrans.getPiece(boardTrans.boardLocation, boardTrans.board.aliveChessPieces);
+      if(p != null)
+      {
+          System.out.println("The height of the piece at " + boardTrans.pos + " is " +
+             p.height +
+             " mm");
     
-      System.out.println("The color of the piece at " + boardTrans.pos + " is "
-             // ????
-             );
+          System.out.println("The color of the piece at " + boardTrans.pos + " is " +
+                     p.side
+                 );
+      }
     } catch (Exception e) {
       System.out.println(e);
       System.exit(1);
@@ -131,6 +136,7 @@ class BoardTrans
                        ", the correct answer is " +
                        boardTrans.board.toCartesian(boardTrans.pos));
   }
+
 }
 
 class StudentBoardTrans
@@ -154,45 +160,50 @@ class StudentBoardTrans
      * board always lies flat on the table.
      */
 
-    double ds = 38.50;
-    double posx = -138.75; 
-    double posy = 468.75;   
+    double dx = board.delta_x;
+    double dy = board.delta_y;
+    double posx = board.coords.x - board.sur_x;
+    double posy = board.coords.y + board.sur_y;   
     double x, y, z;
     
-    x = posx + column * ds;      
-    y = posy - row * ds;
-    z = 18.00;     
+    x = posx - (8 - column) * dx + dx / 2;      
+    y = posy + (8 - row) * dy - dy / 2;
+    z = board.board_thickness;     
+
+    double xshift = board.coords.x;
+    double yshift = board.coords.y;
     double cos = Math.cos(Math.toRadians(board.theta));
     double sin = Math.sin(Math.toRadians(board.theta));
 
-    Point a = new Point(x, y, z);
+    double[] vec = {x - xshift, y - yshift};
     double[][] trans = 
-       {{ cos,  sin, 0},
-        {-sin,  cos, 0},
-        {   0,    0, 1}};
-    Point result = doTransformation(trans, a);
-       
-
-
-    
-    return result;
+       {{ cos, -sin},
+        {sin,  cos}};
+    double[] newVec = doTransformation(trans, vec);
+    return new Point(newVec[0] + xshift, newVec[1] + yshift, z);
   }
 
-  private Point doTransformation(double[][] matrix, Point vector) 
+  private double[] doTransformation(double[][] matrix, double[] vector) 
   {
-    if(matrix.length != 3)
-        throw new IllegalArgumentException("Matrix must have 3 columns");
-
-    double[] oldVec = {vector.x, vector.y, vector.z};
-    double[] newVec = {0, 0, 0};
+    double[] newVec = new double[matrix[0].length];
     for(int c = 0; c < matrix.length; c++)
     {
         for(int r = 0; r < matrix[c].length; r++)
         {
-            newVec[r] += matrix[c][r] * oldVec[c];
+            newVec[r] += matrix[c][r] * vector[c];
         }
     }
-    return new Point(newVec[0], newVec[1], newVec[2]);
+    return newVec;
+  }
+  
+  public static ChessPiece getPiece(StudentBoardTrans.BoardLocation loc, Vector<ChessPiece> pieces)
+  {
+    for(ChessPiece p : pieces)
+    {
+        if(p.location.column == loc.column && p.location.row == loc.row)
+            return p;
+    }
+    return null;
   }
 
   class BoardLocation{

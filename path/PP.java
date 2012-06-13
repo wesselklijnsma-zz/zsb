@@ -117,6 +117,7 @@ public class PP {
     int toRow = toTrans.boardLocation.row;
 
     Point startPoint = fromTrans.toCartesian(fromColumn, fromRow);
+<<<<<<< HEAD
     Point endPoint = toTrans.toCartesian(toColumn, toRow);
 
     moveGripper(startPoint, endPoint, pieceHeight, p);
@@ -132,6 +133,9 @@ public class PP {
 
   private static void moveGripper(Point startPoint, Point endPoint, double pieceHeight, 
                                   Vector<GripperPosition> p) {
+=======
+    Point endPoint = toTrans.toCartesian(toColum, toRow);
+>>>>>>> 989580ae0715120bc8e6746cb59313f5797c87d2
 
     // getting the piece
     p.add(new GripperPosition(addVerticalOffset(startPoint, SAFE_HEIGHT), 0, OPEN_GRIP));
