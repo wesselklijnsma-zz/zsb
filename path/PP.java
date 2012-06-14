@@ -41,6 +41,7 @@ import java.util.Vector;
 public class PP {
   private static double SAFE_HEIGHT=200;
   private static double LOW_HEIGHT=40;
+  private static double LOWPATH_HEIGHT=20;
   private static double OPEN_GRIP=30;
   private static double CLOSED_GRIP=0;
 
@@ -78,8 +79,10 @@ public class PP {
     computerTo = args[0].substring(2,4);
     
     /* plan a path for the move */
-    highPath(computerFrom, computerTo, b, p);
+    //highPath(computerFrom, computerTo, b, p);
     
+    lowPath(computerFrom, computerTo, b, p);
+
     if(b.hasPiece(computerTo))
         moveToGarbage(computerTo, b, p);
 
@@ -108,16 +111,8 @@ public class PP {
     double pieceHeight = b.getPiece(from).height;
 
     // Use the boardLocation and toCartesian methods you wrote:
-    StudentBoardTrans fromTrans = new StudentBoardTrans(from);
-    StudentBoardTrans toTrans = new StudentBoardTrans(to);
-
-    int fromColumn = fromTrans.boardLocation.column;
-    int fromRow = fromTrans.boardLocation.row;
-    int toColumn = toTrans.boardLocation.column;
-    int toRow = toTrans.boardLocation.row;
-
-    Point startPoint = fromTrans.toCartesian(fromColumn, fromRow);
-    Point endPoint = toTrans.toCartesian(toColumn, toRow);
+    Point startPoint = toPoint(from);
+    Point endPoint = toPoint(to);
 
     moveGripper(startPoint, endPoint, pieceHeight, p);
     System.out.println(p);
@@ -130,25 +125,66 @@ public class PP {
 */
   }
 
+  private static void lowPath(String from, String to, 
+            ChessBoard b, Vector<GripperPosition> p) throws ChessBoard.NoPieceAtPositionException 
+  {
+      System.out.println("**** In low path");
+
+      BoardLocation[] path = {new BoardLocation(1,1), new BoardLocation(1,2), new BoardLocation(1,3)};
+      
+      double pieceHeight = b.getPiece(from).height;
+      Point start = toPoint(path[0]);
+
+      p.add(new GripperPosition(addHeight(start, SAFE_HEIGHT), 0, OPEN_GRIP));
+      p.add(new GripperPosition(addHeight(start, pieceHeight/3), 0, OPEN_GRIP));
+      p.add(new GripperPosition(addHeight(start, pieceHeight/3), 0, CLOSED_GRIP));
+      p.add(new GripperPosition(addHeight(start, LOWPATH_HEIGHT), 0, CLOSED_GRIP));                          
+      
+      for(int i=1; i < path.length; i++)
+          p.add(new GripperPosition(addHeight(toPoint(path[i]), LOWPATH_HEIGHT), 0, CLOSED_GRIP));
+      
+      Point end = toPoint(path[path.length - 1]);
+      p.add(new GripperPosition(addHeight(end, pieceHeight/3), 0, CLOSED_GRIP));
+      p.add(new GripperPosition(addHeight(end, pieceHeight/3), 0, OPEN_GRIP));
+      p.add(new GripperPosition(addHeight(end, SAFE_HEIGHT), 0, OPEN_GRIP));                                            
+  }
+
+
+  private static Point toPoint(String pos) 
+  {
+      StudentBoardTrans trans = new StudentBoardTrans(pos);    
+      Point point = trans.toCartesian(trans.boardLocation.column, trans.boardLocation.row);
+
+      return point;
+  }
+
+  private static Point toPoint(BoardLocation pos)
+  {
+      StudentBoardTrans trans = new StudentBoardTrans("a1");
+      Point point = trans.toCartesian(pos.column, pos.row);
+
+      return point;
+  }
+
   private static void moveGripper(Point startPoint, Point endPoint, double pieceHeight,
                                   Vector<GripperPosition> p) {
 
     // getting the piece
-    p.add(new GripperPosition(addVerticalOffset(startPoint, SAFE_HEIGHT), 0, OPEN_GRIP));
-    p.add(new GripperPosition(addVerticalOffset(startPoint, LOW_HEIGHT), 0, OPEN_GRIP));
-    p.add(new GripperPosition(addVerticalOffset(startPoint, pieceHeight / 2), 0, OPEN_GRIP));
-    p.add(new GripperPosition(addVerticalOffset(startPoint, pieceHeight / 2), 0, CLOSED_GRIP));
-    p.add(new GripperPosition(addVerticalOffset(startPoint, SAFE_HEIGHT), 0, CLOSED_GRIP));
+    p.add(new GripperPosition(addHeight(startPoint, SAFE_HEIGHT), 0, OPEN_GRIP));
+    p.add(new GripperPosition(addHeight(startPoint, LOW_HEIGHT), 0, OPEN_GRIP));
+    p.add(new GripperPosition(addHeight(startPoint, pieceHeight / 2), 0, OPEN_GRIP));
+    p.add(new GripperPosition(addHeight(startPoint, pieceHeight / 2), 0, CLOSED_GRIP));
+    p.add(new GripperPosition(addHeight(startPoint, SAFE_HEIGHT), 0, CLOSED_GRIP));
     
     // putting it in its new spot
-    p.add(new GripperPosition(addVerticalOffset(endPoint, SAFE_HEIGHT), 0, CLOSED_GRIP));
-    p.add(new GripperPosition(addVerticalOffset(endPoint, LOW_HEIGHT + pieceHeight / 2), 0, CLOSED_GRIP));
-    p.add(new GripperPosition(addVerticalOffset(endPoint, LOW_HEIGHT / 2 + pieceHeight / 2), 0, CLOSED_GRIP));
-    p.add(new GripperPosition(addVerticalOffset(endPoint, pieceHeight / 2), 0, OPEN_GRIP));
-    p.add(new GripperPosition(addVerticalOffset(endPoint, SAFE_HEIGHT), 0, OPEN_GRIP));
+    p.add(new GripperPosition(addHeight(endPoint, SAFE_HEIGHT), 0, CLOSED_GRIP));
+    p.add(new GripperPosition(addHeight(endPoint, LOW_HEIGHT + pieceHeight / 2), 0, CLOSED_GRIP));
+    p.add(new GripperPosition(addHeight(endPoint, LOW_HEIGHT / 2 + pieceHeight / 2), 0, CLOSED_GRIP));
+    p.add(new GripperPosition(addHeight(endPoint, pieceHeight / 2), 0, OPEN_GRIP));
+    p.add(new GripperPosition(addHeight(endPoint, SAFE_HEIGHT), 0, OPEN_GRIP));
   }
 
-  private static Point addVerticalOffset(Point p, double offset)
+  private static Point addHeight(Point p, double offset)
   {
     Point pNew = (Point)p.clone();
     pNew.z += offset;
