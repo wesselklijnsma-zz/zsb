@@ -36,7 +36,7 @@
 
 import java.io.*;
 import java.lang.*;
-import java.util.Vector;
+import java.util.*;
 
 public class PP {
   private static double SAFE_HEIGHT=200;
@@ -45,9 +45,12 @@ public class PP {
   private static double OPEN_GRIP=30;
   private static double CLOSED_GRIP=0;
 
+  private static Point location;
+  private static Vector<GripperPosition> p = new Vector<GripperPosition>();
+  private static double height, grip;
+  private static ChessBoard b;
+
   public static void main(String[] args) throws ChessBoard.NoPieceAtPositionException {
-    Vector<GripperPosition> p = new Vector<GripperPosition>();
-    ChessBoard b;
     String computerFrom, computerTo;
 
     System.out.println("**** THIS IS THE STUDENT PP MODULE IN JAVA");
@@ -81,10 +84,10 @@ public class PP {
     /* plan a path for the move */
     //highPath(computerFrom, computerTo, b, p);
     
-    lowPath(computerFrom, computerTo, b, p);
+    lowPath(computerFrom, computerTo);
 
     if(b.hasPiece(computerTo))
-        moveToGarbage(computerTo, b, p);
+        moveToGarbage(computerTo);
 
     /* move the computer piece */
     try {
@@ -102,8 +105,7 @@ public class PP {
     GripperPosition.write(p);
   }
 
-  private static void highPath(String from, String to,
-           ChessBoard b, Vector<GripperPosition> p) throws ChessBoard.NoPieceAtPositionException
+  private static void highPath(String from, String to) throws ChessBoard.NoPieceAtPositionException
   {
 
     System.out.println("**** In high path");
@@ -114,7 +116,7 @@ public class PP {
     Point startPoint = toPoint(from);
     Point endPoint = toPoint(to);
 
-    moveGripper(startPoint, endPoint, pieceHeight, p);
+    moveGripperHigh(startPoint, endPoint, pieceHeight);
     System.out.println(p);
     /* Example of adding a gripperposition to Vector p.
 * Point tempPoint;
@@ -125,29 +127,74 @@ public class PP {
 */
   }
 
-  private static void lowPath(String from, String to, 
-            ChessBoard b, Vector<GripperPosition> p) throws ChessBoard.NoPieceAtPositionException 
-  {
+  private static void lowPath(String from, String to) throws ChessBoard.NoPieceAtPositionException {
       System.out.println("**** In low path");
+      BoardLocation fromBoard = new BoardLocation(from);
+      BoardLocation toBoard = new BoardLocation(to); 
 
-      BoardLocation[] path = {new BoardLocation(1,1), new BoardLocation(1,2), new BoardLocation(1,3)};
+      AStar finder = new AStar(b, fromBoard, toBoard);
+      List<BoardLocation> path = finder.getPath();
       
-      double pieceHeight = b.getPiece(from).height;
-      Point start = toPoint(path[0]);
-
-      p.add(new GripperPosition(addHeight(start, SAFE_HEIGHT), 0, OPEN_GRIP));
-      p.add(new GripperPosition(addHeight(start, pieceHeight/3), 0, OPEN_GRIP));
-      p.add(new GripperPosition(addHeight(start, pieceHeight/3), 0, CLOSED_GRIP));
-      p.add(new GripperPosition(addHeight(start, LOWPATH_HEIGHT), 0, CLOSED_GRIP));                          
-      
-      for(int i=1; i < path.length; i++)
-          p.add(new GripperPosition(addHeight(toPoint(path[i]), LOWPATH_HEIGHT), 0, CLOSED_GRIP));
-      
-      Point end = toPoint(path[path.length - 1]);
-      p.add(new GripperPosition(addHeight(end, pieceHeight/3), 0, CLOSED_GRIP));
-      p.add(new GripperPosition(addHeight(end, pieceHeight/3), 0, OPEN_GRIP));
-      p.add(new GripperPosition(addHeight(end, SAFE_HEIGHT), 0, OPEN_GRIP));                                            
+      if(path == null)
+          highPath(from, to);
+      else
+          printPath(path);
+          moveGripperLow(from, to, path);
   }
+
+  private static void printPath(List<BoardLocation> path)
+  {
+      for(BoardLocation loc : path)
+          System.out.printf("%d,%d ", loc.column, loc.row);
+  }
+
+  private static void moveGripperLow(String from, String to, List<BoardLocation> path) 
+      throws ChessBoard.NoPieceAtPositionException
+  {
+      double pieceHeight = b.getPiece(from).height;
+      
+      location  = toPoint(path.get(0));
+      grip = OPEN_GRIP;  height = SAFE_HEIGHT; move();
+      height = pieceHeight/3; move();  
+      grip = CLOSED_GRIP; move();
+      height = LOWPATH_HEIGHT; move();                          
+      
+      for(BoardLocation loc : path)
+      {
+          location = toPoint(loc); move();
+      }
+            
+      height = pieceHeight/3; move();
+      grip = OPEN_GRIP; move();
+      height = SAFE_HEIGHT; move();
+  }  
+
+  private static void moveGripperHigh(Point startPoint, Point endPoint, double pieceHeight) 
+  {
+    //getting the piece
+    location = startPoint; 
+    height = SAFE_HEIGHT;
+    grip = OPEN_GRIP; move();
+    height = LOW_HEIGHT; move();
+    height = pieceHeight / 2; move();
+    grip = CLOSED_GRIP; move();
+    height = SAFE_HEIGHT; move();
+       
+    // putting it in its new spot
+    location = endPoint; move();
+    height = LOW_HEIGHT + pieceHeight / 2; move();
+    height = LOW_HEIGHT / 2 + pieceHeight / 2; move();
+    height = pieceHeight / 2; move();
+    grip = OPEN_GRIP; move();
+    height = SAFE_HEIGHT; move();
+    }
+
+
+  private static void move()
+  {
+      p.add(new GripperPosition(addHeight(location, height), 0, grip));
+  }
+
 
 
   private static Point toPoint(String pos) 
@@ -166,32 +213,14 @@ public class PP {
       return point;
   }
 
-  private static void moveGripper(Point startPoint, Point endPoint, double pieceHeight,
-                                  Vector<GripperPosition> p) {
-
-    // getting the piece
-    p.add(new GripperPosition(addHeight(startPoint, SAFE_HEIGHT), 0, OPEN_GRIP));
-    p.add(new GripperPosition(addHeight(startPoint, LOW_HEIGHT), 0, OPEN_GRIP));
-    p.add(new GripperPosition(addHeight(startPoint, pieceHeight / 2), 0, OPEN_GRIP));
-    p.add(new GripperPosition(addHeight(startPoint, pieceHeight / 2), 0, CLOSED_GRIP));
-    p.add(new GripperPosition(addHeight(startPoint, SAFE_HEIGHT), 0, CLOSED_GRIP));
-    
-    // putting it in its new spot
-    p.add(new GripperPosition(addHeight(endPoint, SAFE_HEIGHT), 0, CLOSED_GRIP));
-    p.add(new GripperPosition(addHeight(endPoint, LOW_HEIGHT + pieceHeight / 2), 0, CLOSED_GRIP));
-    p.add(new GripperPosition(addHeight(endPoint, LOW_HEIGHT / 2 + pieceHeight / 2), 0, CLOSED_GRIP));
-    p.add(new GripperPosition(addHeight(endPoint, pieceHeight / 2), 0, OPEN_GRIP));
-    p.add(new GripperPosition(addHeight(endPoint, SAFE_HEIGHT), 0, OPEN_GRIP));
-  }
-
-  private static Point addHeight(Point p, double offset)
+   private static Point addHeight(Point p, double offset)
   {
     Point pNew = (Point)p.clone();
     pNew.z += offset;
     return pNew;
   }
 
-  private static void moveToGarbage(String to, ChessBoard b, Vector<GripperPosition> g)
+  private static void moveToGarbage(String to)
       throws ChessBoard.NoPieceAtPositionException
   {
 
@@ -213,7 +242,7 @@ public class PP {
     Point endPoint = fromTrans.toCartesian(-1, fromRow);
      
 
-    moveGripper(startPoint, endPoint, pieceHeight, g);
+    moveGripperHigh(startPoint, endPoint, pieceHeight);
      
 
   }
