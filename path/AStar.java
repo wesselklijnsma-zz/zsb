@@ -22,10 +22,7 @@ public class AStar {
 	 * 
 	 * Note: every Move object also stores all moves leading up to
 	 * the current position. This makes handling of paths much easier.
-	 * 
-	 * Another note: this implementation ends up in an endless loop if
-	 * there is no valid path; it does not end unless it can find one.
-	 */
+     */
 	public List<BoardLocation> getPath() {
 		List<Move> paths = new ArrayList<Move>();
 		paths.addAll(getMoves());
@@ -35,6 +32,9 @@ public class AStar {
 			// getSearchIteration does the actual work; it decides which
 			// path to expand.
 			paths = getSearchIteration(paths);
+
+            if(paths == null) // no path possible
+                return null;
 
 			winningMove = goalReached(paths);
 		}
@@ -55,7 +55,21 @@ public class AStar {
 	private List<Move> getSearchIteration(List<Move> paths) {
 		Move optimal = getOptimalMove(paths);
 		paths.remove(optimal);
-		paths.addAll(getMoves(optimal));
+
+        // check for impossible paths
+        List<Move> newMoves = getMoves(optimal);
+        while (newMoves.size() == 0)
+        {
+            if(paths.size() == 0) // no more moves
+                return null;
+
+            optimal = getOptimalMove(paths);
+            paths.remove(optimal);
+            
+            newMoves = getMoves(optimal);
+        }
+
+		paths.addAll(newMoves);
 		return paths;
 	}
 
@@ -128,11 +142,13 @@ public class AStar {
 	 * up untill the current point.
 	 */
 	private List<Move> getMoves(Move previous) {
+        System.out.println(previous == null);
 		List<BoardLocation> locs = getNewLocations(previous.loc);
 		List<Move> moves = new ArrayList<Move>();
 
 		for (BoardLocation l : locs)
-			moves.add(new Move(previous, l, 1));
+            if(!previous.visitedBefore(l))
+    			moves.add(new Move(previous, l, 1));
 
 		return moves;
 	}
@@ -270,6 +286,13 @@ public class AStar {
             return locations;
 		}
 		
+        public boolean visitedBefore(BoardLocation square)
+        {
+            return (loc.row == square.row && loc.column == square.column) 
+                || (previous != null 
+                        ? previous.visitedBefore(square) 
+                        : false);
+        }
 	}
 
 }
