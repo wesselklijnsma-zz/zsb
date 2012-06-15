@@ -24,8 +24,6 @@
  * $Id: Week1.java,v 1.9 2008/06/10 10:21:36 obooij Exp $
  */
 
-import java.io.*;
-import java.lang.*;
 import java.util.Vector;
 import java.util.List;
 import java.util.Arrays;

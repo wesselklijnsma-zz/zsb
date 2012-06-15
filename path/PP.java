@@ -34,8 +34,6 @@
 * $Id: Week2.java,v a4f44ea5d321 2008/06/16 09:18:44 obooij $
 */
 
-import java.io.*;
-import java.lang.*;
 import java.util.*;
 
 public class PP {
@@ -108,8 +106,6 @@ public class PP {
   private static void highPath(String from, String to) throws ChessBoard.NoPieceAtPositionException
   {
 
-    System.out.println("**** In high path");
-
     double pieceHeight = b.getPiece(from).height;
 
     // Use the boardLocation and toCartesian methods you wrote:
@@ -128,7 +124,6 @@ public class PP {
   }
 
   private static void lowPath(String from, String to) throws ChessBoard.NoPieceAtPositionException {
-      System.out.println("**** In low path");
       BoardLocation fromBoard = new BoardLocation(from);
       BoardLocation toBoard = new BoardLocation(to); 
 
@@ -136,10 +131,13 @@ public class PP {
       List<BoardLocation> path = finder.getPath();
       
       if(path == null)
+      {
           highPath(from, to);
-      else
+      } else
+      {
           printPath(path);
           moveGripperLow(from, to, path);
+      }
   }
 
   private static void printPath(List<BoardLocation> path)
@@ -230,8 +228,6 @@ public class PP {
 * piece, and if so call this function to remove the white piece from
 * the board first.
 */
-    System.out.println("**** In moveToGarbage");
-    
     double pieceHeight = b.getPiece(to).height;
     
     StudentBoardTrans fromTrans = new StudentBoardTrans(to);
