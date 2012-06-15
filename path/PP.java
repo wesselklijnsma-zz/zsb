@@ -237,7 +237,8 @@ public class PP {
 
     Point startPoint = fromTrans.toCartesian(fromColumn, fromRow); //location of piece
     Point endPoint = fromTrans.toCartesian(-1, fromRow); //one block left of the board
-     
+    endPoint.z += 30;
+
     //moving the gripper
     moveGripperHigh(startPoint, endPoint, pieceHeight);
      
