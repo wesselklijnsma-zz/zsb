@@ -78,14 +78,13 @@ public class PP {
     
     computerFrom = args[0].substring(0,2);
     computerTo = args[0].substring(2,4);
-    
-    /* plan a path for the move */
-    //highPath(computerFrom, computerTo, b, p);
-    
-    lowPath(computerFrom, computerTo);
 
+    //move checked piece to side of the board
     if(b.hasPiece(computerTo))
         moveToGarbage(computerTo);
+
+    // try to plan low path
+    lowPath(computerFrom, computerTo);
 
     /* move the computer piece */
     try {
@@ -103,72 +102,78 @@ public class PP {
     GripperPosition.write(p);
   }
 
+  //high path planning
   private static void highPath(String from, String to) throws ChessBoard.NoPieceAtPositionException
   {
 
     double pieceHeight = b.getPiece(from).height;
 
-    // Use the boardLocation and toCartesian methods you wrote:
+    // getting start and end points:
     Point startPoint = toPoint(from);
     Point endPoint = toPoint(to);
 
+    //move the gripper 
     moveGripperHigh(startPoint, endPoint, pieceHeight);
-    System.out.println(p);
-    /* Example of adding a gripperposition to Vector p.
-* Point tempPoint;
-* GripperPosition temp;
-* tempPoint = new Point(x-coordinate, y-coordinate, z-coordinate);
-* temp = new GripperPosition(tempPoint, angle, CLOSED_GRIP/OPEN_GRIP);
-* Now you only have to add it at the end of Vector p.
-*/
   }
 
   private static void lowPath(String from, String to) throws ChessBoard.NoPieceAtPositionException {
       BoardLocation fromBoard = new BoardLocation(from);
       BoardLocation toBoard = new BoardLocation(to); 
 
+      //find low path
       AStar finder = new AStar(b, fromBoard, toBoard);
       List<BoardLocation> path = finder.getPath();
       
+    
       if(path == null)
       {
-          highPath(from, to);
+          highPath(from, to); //if path not found use high path
       } else
       {
           printPath(path);
-          moveGripperLow(from, to, path);
+          moveGripperLow(from, to, path); //move the gripper along the low path
       }
   }
 
+  //method that prints lists of BoardLocations
   private static void printPath(List<BoardLocation> path)
   {
       for(BoardLocation loc : path)
           System.out.printf("%d,%d ", loc.column, loc.row);
   }
 
+  //gripper movement at low height
   private static void moveGripperLow(String from, String to, List<BoardLocation> path) 
       throws ChessBoard.NoPieceAtPositionException
   {
       double pieceHeight = b.getPiece(from).height;
       
+      System.out.println("in low");      
+      
+      //getting the piece
       location  = toPoint(path.get(0));
       grip = OPEN_GRIP;  height = SAFE_HEIGHT; move();
       height = pieceHeight/3; move();  
       grip = CLOSED_GRIP; move();
       height = LOWPATH_HEIGHT; move();                          
       
+      //moving it along path
       for(BoardLocation loc : path)
       {
           location = toPoint(loc); move();
       }
-            
+      
+      //releasing the piece      
       height = pieceHeight/3; move();
       grip = OPEN_GRIP; move();
       height = SAFE_HEIGHT; move();
   }  
 
+  //gripper movement at high height
   private static void moveGripperHigh(Point startPoint, Point endPoint, double pieceHeight) 
   {
+    System.out.println("in high");
+
     //getting the piece
     location = startPoint; 
     height = SAFE_HEIGHT;
@@ -187,14 +192,14 @@ public class PP {
     height = SAFE_HEIGHT; move();
     }
 
-
+  //moving the gripper  
   private static void move()
   {
       p.add(new GripperPosition(addHeight(location, height), 0, grip));
   }
 
 
-
+  ///conversion of string position to cartesian point  
   private static Point toPoint(String pos) 
   {
       StudentBoardTrans trans = new StudentBoardTrans(pos);    
@@ -203,6 +208,7 @@ public class PP {
       return point;
   }
 
+  //conversion of BoardLocation to cartesian point
   private static Point toPoint(BoardLocation pos)
   {
       StudentBoardTrans trans = new StudentBoardTrans("a1");
@@ -211,33 +217,28 @@ public class PP {
       return point;
   }
 
-   private static Point addHeight(Point p, double offset)
+  //adding height to location point
+  private static Point addHeight(Point p, double offset)
   {
     Point pNew = (Point)p.clone();
     pNew.z += offset;
     return pNew;
   }
 
+  //moving checked pieces to the side of the board
   private static void moveToGarbage(String to)
-      throws ChessBoard.NoPieceAtPositionException
+                   throws ChessBoard.NoPieceAtPositionException
   {
-
-    /* When you're done with highPath(), incorporate this function.
-* It should remove a checked piece from the board.
-* In main() you have to detect if the computer move checks a white
-* piece, and if so call this function to remove the white piece from
-* the board first.
-*/
     double pieceHeight = b.getPiece(to).height;
     
     StudentBoardTrans fromTrans = new StudentBoardTrans(to);
     int fromColumn = fromTrans.boardLocation.column;
     int fromRow = fromTrans.boardLocation.row;
 
-    Point startPoint = fromTrans.toCartesian(fromColumn, fromRow);
-    Point endPoint = fromTrans.toCartesian(-1, fromRow);
+    Point startPoint = fromTrans.toCartesian(fromColumn, fromRow); //location of piece
+    Point endPoint = fromTrans.toCartesian(-1, fromRow); //one block left of the board
      
-
+    //moving the gripper
     moveGripperHigh(startPoint, endPoint, pieceHeight);
      
 
