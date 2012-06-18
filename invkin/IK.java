@@ -54,10 +54,10 @@ public class IK {
    */
   private static void handJointCalculation(GripperPosition pos,
                                              JointValues j) {
-    j.roll = 23; // ????
-    j.pitch = 23; // ????
-    j.yaw = 23; // ????
-    j.grip = 23; // ????
+    j.roll = pos.theta;
+    j.pitch = -90.0;
+    j.yaw = 0.0;
+    j.grip = pos.grip;
   }
 
   /* Calculate the wrist coordinates from the hand coordinates.
