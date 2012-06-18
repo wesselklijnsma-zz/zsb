@@ -1,41 +1,19 @@
 /*
-* PP.java
-* Assignment for the Path planning part of the ZSB lab course.
-*
-* This you will work on writing a function called highPath() to move a
-* chesspiece across the board at a safe height. By raising the gripper 20 cm
-* above the board before moving it over the board you don't risk hitting any
-* other pieces on the board. This means you don't have to do any pathplanning
-* yet.
-*
-* Input of this program is a commandline argument, specifying the computer
-* (white) move. Your job is to find the correct sequence of GripperPositions
-* (stored in Vector p) to pick up the correct white piece and deposit it at
-* its desired new location. Read file
-* /opt/stud/robotics/hints/HIGHPATH_POSITIONS to see what intermediate
-* positions you should calculate.
-*
-* To run your program, fire up playchess or one of its derviates endgame* and
-* the umirtxsimulator. In the simulator you can see the effect of your path
-* planning although the board itself is not simulated. When you think you've
-* solved this assignment ask one of the lab assistents to verify it and let
-* it run on the real robot arm.
-*
-* You can also compare your solution with the standard PP solution outside
-* playchess by running in a shell:
-* java PPstandard e2e4
-* cat positions.txt
-* java PP e2e4
-* cat positions.txt
-*
-*
-*
-* Nikos Massios, Matthijs Spaan <mtjspaan@science.uva.nl>
-* $Id: Week2.java,v a4f44ea5d321 2008/06/16 09:18:44 obooij $
-*/
+ * Names       : Jouke van der Maas & Wessel Klijnsma
+ * Student IDs : 10186883 and 10172432
+ * Description : Part of path planning problem for a robot arm.
+ * Date        : June 2012
+ * Comments    : The structure of this file was provided by Nikos Massios
+ *   and Matthijs Spaan.
+ */
 
 import java.util.*;
 
+/**
+ * Used to calculate the positions of the gripper of the robot necessary to 
+ * move a chesspiece on the board.
+ * 
+ */
 public class PP {
   private static double SAFE_HEIGHT=200;
   private static double LOW_HEIGHT=40;
@@ -48,6 +26,15 @@ public class PP {
   private static double height, grip;
   private static ChessBoard b;
 
+  /**
+   * Writes the positions for the specified move to a file called positions.txt
+   * in the current folder.
+   *
+   * @param args
+   * The first (0) element should contain a move in the form e3e4. If any more
+   * elements are provided, they should be element 1, 2, and 3, containing the
+   * x, y and theta that represent the position of the board.
+   */
   public static void main(String[] args) throws ChessBoard.NoPieceAtPositionException {
     String computerFrom, computerTo;
 
@@ -79,9 +66,7 @@ public class PP {
     computerFrom = args[0].substring(0,2);
     computerTo = args[0].substring(2,4);
     
-    /* plan a path for the move */
-    //highPath(computerFrom, computerTo, b, p);
-    
+    // lowPath automatically calls highPath if no path can be found.
     lowPath(computerFrom, computerTo);
 
     if(b.hasPiece(computerTo))
@@ -89,10 +74,10 @@ public class PP {
 
     /* move the computer piece */
     try {
-    b.movePiece(computerFrom, computerTo);
+        b.movePiece(computerFrom, computerTo);
     } catch (ChessBoard.NoPieceAtPositionException e) {
-    System.out.println(e);
-    System.exit(1);
+        System.out.println(e);
+        System.exit(1);
     }
 
     System.out.println("**** The board after the move was:");
@@ -103,47 +88,55 @@ public class PP {
     GripperPosition.write(p);
   }
 
+  /**
+   * Calculates positions on the path between two specified locations on the chessboard. 
+   * The returned path will be high; above any piece on the board. No collissions can occur,
+   * so a direct route is taken.
+   *
+   * @param from
+   * A string containing the start position of the path (in the standard chess
+   * format).
+   *
+   * @param to
+   * A string containing the end position of the path (in the standard chess
+   * format).
+   */
   private static void highPath(String from, String to) throws ChessBoard.NoPieceAtPositionException
   {
-
-    double pieceHeight = b.getPiece(from).height;
-
-    // Use the boardLocation and toCartesian methods you wrote:
     Point startPoint = toPoint(from);
     Point endPoint = toPoint(to);
 
-    moveGripperHigh(startPoint, endPoint, pieceHeight);
-    System.out.println(p);
-    /* Example of adding a gripperposition to Vector p.
-* Point tempPoint;
-* GripperPosition temp;
-* tempPoint = new Point(x-coordinate, y-coordinate, z-coordinate);
-* temp = new GripperPosition(tempPoint, angle, CLOSED_GRIP/OPEN_GRIP);
-* Now you only have to add it at the end of Vector p.
-*/
+    moveGripperHigh(startPoint, endPoint);
   }
 
+  /**
+   * Calculates positions on the path between two specified locations on the
+   * chessboard. The returned path will be low, in between the chesspieces. A
+   * path without collisions will be chosen.
+   *
+   * Note: If no safe path can be found, a high path will be used (see
+   * highPath()).
+   *
+   * @param from
+   * A string containing the start position of the path (in the standard chess
+   * format).
+   *
+   * @param to
+   * A string containing the end position of the path (in the standard chess
+   * format).
+   */
   private static void lowPath(String from, String to) throws ChessBoard.NoPieceAtPositionException {
       BoardLocation fromBoard = new BoardLocation(from);
       BoardLocation toBoard = new BoardLocation(to); 
 
+      // use A* to find a path between the pieces
       AStar finder = new AStar(b, fromBoard, toBoard);
       List<BoardLocation> path = finder.getPath();
       
-      if(path == null)
-      {
+      if(path == null) // there is no path
           highPath(from, to);
-      } else
-      {
-          printPath(path);
+      else
           moveGripperLow(from, to, path);
-      }
-  }
-
-  private static void printPath(List<BoardLocation> path)
-  {
-      for(BoardLocation loc : path)
-          System.out.printf("%d,%d ", loc.column, loc.row);
   }
 
   private static void moveGripperLow(String from, String to, List<BoardLocation> path) 
@@ -167,8 +160,10 @@ public class PP {
       height = SAFE_HEIGHT; move();
   }  
 
-  private static void moveGripperHigh(Point startPoint, Point endPoint, double pieceHeight) 
+  private static void moveGripperHigh(Point startPoint, Point endPoint) 
   {
+    double pieceHeight = b.getPiece(from).height;
+
     //getting the piece
     location = startPoint; 
     height = SAFE_HEIGHT;
