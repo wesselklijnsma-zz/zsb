@@ -1,3 +1,11 @@
+/*
+ * Names       : Jouke van der Maas & Wessel Klijnsma
+ * Student IDs : 10186883 and 10172432
+ * Description : Part of path planning problem for a robot arm.
+ * Date        : June 2012
+ * Comments    : The structure of this file was provided by Nikos Massios
+ *   and Matthijs Spaan.
+ */
 import java.util.*;
 /**
  * Used to find a path between chess pieces on a board using the
