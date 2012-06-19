@@ -25,6 +25,8 @@ public class PP {
   private static Vector<GripperPosition> p = new Vector<GripperPosition>();
   private static double height, grip;
   private static ChessBoard b;
+  private static int blackTaken;
+  private static int whiteTaken;
 
   /**
    * Writes the positions for the specified move to a file called positions.txt
@@ -106,7 +108,8 @@ public class PP {
     Point startPoint = toPoint(from);
     Point endPoint = toPoint(to);
 
-    moveGripperHigh(startPoint, endPoint);
+    double pieceHeight = b.getPiece(from).height;
+    moveGripperHigh(startPoint, endPoint, pieceHeight);
   }
 
   /**
@@ -133,63 +136,135 @@ public class PP {
       AStar finder = new AStar(b, fromBoard, toBoard);
       List<BoardLocation> path = finder.getPath();
       
-      if(path == null) // there is no path
+      if(path == null) // there is no safe low path
           highPath(from, to);
       else
           moveGripperLow(from, to, path);
   }
 
-  private static void moveGripperLow(String from, String to, List<BoardLocation> path) 
+  /**
+   * Finds positions (x, y, z) for the gripper along a specified path of coordinates on
+   * the board (e3). 
+   *
+   * Note: 'height' represents delta height, the height counting from the top
+   * of the board.
+   *
+   * @param from
+   * A string containing the start position of the path (in the standard chess
+   * format).
+   *
+   * @param to
+   * A string containing the end position of the path (in the standard chess
+   * format).
+   *
+   * @param path
+   * The path to follow, in board locations. The path should always start in
+   * the same position as 'from' and end in 'to'.
+   */
+  private static void moveGripperLow(String from, String tos, List<BoardLocation> path) 
       throws ChessBoard.NoPieceAtPositionException
   {
       double pieceHeight = b.getPiece(from).height;
       
+      // move to above the piece
       location  = toPoint(path.get(0));
-      grip = OPEN_GRIP;  height = SAFE_HEIGHT; move();
-      height = pieceHeight/3; move();  
-      grip = CLOSED_GRIP; move();
-      height = LOWPATH_HEIGHT; move();                          
+      grip = OPEN_GRIP;  
+      height = SAFE_HEIGHT; 
+      move();
       
+      // put gripper around the piece
+      height = pieceHeight/3; 
+      move();
+
+      // close the gripper and move to the path height
+      grip = CLOSED_GRIP; 
+      move();
+      height = LOWPATH_HEIGHT; 
+      move();                          
+      
+      // follow the path
       for(BoardLocation loc : path)
       {
-          location = toPoint(loc); move();
+          location = toPoint(loc); 
+          move();
       }
             
-      height = pieceHeight/3; move();
-      grip = OPEN_GRIP; move();
-      height = SAFE_HEIGHT; move();
+      // put the piece down again
+      height = pieceHeight/3; 
+      move();
+      grip = OPEN_GRIP; 
+      move();
+      
+      // move back up
+      height = SAFE_HEIGHT; 
+      move();
   }  
 
-  private static void moveGripperHigh(Point startPoint, Point endPoint) 
+  /**
+   * Finds positions (x,y,z) for the gripper, moving above all chesspieces.
+   *
+   * @param startPoint
+   * The current position of the piece.
+   *
+   * @param endPoint
+   * The desired position of the piece.
+   *
+   * @param pieceHeight
+   * The height of the piece (used when picking it up).
+   */
+  private static void moveGripperHigh(Point startPoint, Point endPoint, double pieceHeight) 
   {
-    double pieceHeight = b.getPiece(from).height;
 
     //getting the piece
     location = startPoint; 
     height = SAFE_HEIGHT;
-    grip = OPEN_GRIP; move();
-    height = LOW_HEIGHT; move();
-    height = pieceHeight / 2; move();
-    grip = CLOSED_GRIP; move();
-    height = SAFE_HEIGHT; move();
+    grip = OPEN_GRIP; 
+    move();
+    
+    height = LOW_HEIGHT; 
+    move();
+    height = pieceHeight / 2; 
+    move();
+    grip = CLOSED_GRIP; 
+    move();
+    height = SAFE_HEIGHT; 
+    move();
        
     // putting it in its new spot
-    location = endPoint; move();
-    height = LOW_HEIGHT + pieceHeight / 2; move();
-    height = LOW_HEIGHT / 2 + pieceHeight / 2; move();
-    height = pieceHeight / 2; move();
-    grip = OPEN_GRIP; move();
-    height = SAFE_HEIGHT; move();
-    }
+    location = endPoint; 
+    move();
+    height = LOW_HEIGHT + pieceHeight / 2; 
+    move();
+    height = LOW_HEIGHT / 2 + pieceHeight / 2;
+    move();
+    height = pieceHeight / 2; 
+    move();
+    grip = OPEN_GRIP; 
+    move();
+    height = SAFE_HEIGHT; 
+    move();
+  }
 
-
+  /**
+   * Adds the move specified by the fields location, height and grip to the
+   * vector p, which contains the path in cartesian coordinates at the end of
+   * a program run.
+   *
+   * Note: the height specified in 'height' is additive; it is added to the
+   * height of the board.
+   */
   private static void move()
   {
       p.add(new GripperPosition(addHeight(location, height), 0, grip));
   }
 
-
-
+  /**
+   * Converts a position specified as a string (e.g. a3) to a cartesian
+   * coordinate (x, y, z).
+   *
+   * @param pos
+   * The position to convert.
+   */
   private static Point toPoint(String pos) 
   {
       StudentBoardTrans trans = new StudentBoardTrans(pos);    
@@ -198,6 +273,15 @@ public class PP {
       return point;
   }
 
+  /**
+   * Converts a position specified as a row and column to a cartesian
+   * coordinate (x, y, z).
+   *
+   * Note: the first row/column is 0, not 1.
+   *
+   * @param pos
+   * The position to convert.
+   */
   private static Point toPoint(BoardLocation pos)
   {
       StudentBoardTrans trans = new StudentBoardTrans("a1");
@@ -206,35 +290,94 @@ public class PP {
       return point;
   }
 
-   private static Point addHeight(Point p, double offset)
+  /**
+   * Adds height to the z-coordinate of the given point.
+   *
+   * @param p
+   * The original point.
+   *
+   * @param offset
+   * The height to add.
+   */
+  private static Point addHeight(Point p, double offset)
   {
-    Point pNew = (Point)p.clone();
-    pNew.z += offset;
-    return pNew;
+    return new Point(p.x, p.y, p.z + offset);
   }
 
+  /**
+   * Finds a path in cartesian coordinates from a piece to a 'garbage'
+   * location; a place for pieces to go when they get taken.
+   *
+   * @param to
+   * The location of the piece that's about to get taken.
+   */
   private static void moveToGarbage(String to)
       throws ChessBoard.NoPieceAtPositionException
   {
-
-    /* When you're done with highPath(), incorporate this function.
-* It should remove a checked piece from the board.
-* In main() you have to detect if the computer move checks a white
-* piece, and if so call this function to remove the white piece from
-* the board first.
-*/
-    double pieceHeight = b.getPiece(to).height;
+    ChessPiece piece = b.getPiece(to);
     
-    StudentBoardTrans fromTrans = new StudentBoardTrans(to);
-    int fromColumn = fromTrans.boardLocation.column;
-    int fromRow = fromTrans.boardLocation.row;
+    Point startPoint = toPoint(to);
+    Point endPoint;
+    if (piece.side == "black")
+        endPoint = blackToGarbage(piece);
+    else
+        endPoint = whiteToGarbage(piece);
 
-    Point startPoint = fromTrans.toCartesian(fromColumn, fromRow);
-    Point endPoint = fromTrans.toCartesian(-1, fromRow);
-     
+    // set the board thickness to 0; we're putting things next to it
+    double boardThickness = b.board_thickness;
+    b.board_thickness = 0;
+    moveGripperHigh(startPoint, endPoint, piece.height);
+    b.board_thickness = boardThickness;
+  }
 
-    moveGripperHigh(startPoint, endPoint, pieceHeight);
-     
+  /**
+   * Calculates the coordinate of the spot for the next taken black
+   * piece.
+   *
+   * @param piece
+   * The piece to move.
+   */
+  private static Point blackToGarbage(ChessPiece piece)
+  {
+    int column, row;
+
+    if (blackTaken > 7)
+    {
+        row = -3;
+        column = blackTaken - 8;
+    }
+    else
+    {
+        row = -2;
+        column = blackTaken;
+    }
+    blackTaken++;
+    return toPoint(new BoardLocation(column, row));
+  }
+ 
+  /**
+   * Calculates the coordinate of the spot for the next taken white
+   * piece.
+   *
+   * @param piece
+   * The piece to move.
+   */
+  private static Point whiteToGarbage(ChessPiece piece)
+  {
+    int column, row;
+
+    if (whiteTaken > 7)
+    {
+        row = 10;
+        column = whiteTaken - 8;
+    }
+    else
+    {
+        row = 9;
+        column = whiteTaken;
+    }
+    whiteTaken++;
+    return toPoint(new BoardLocation(column, row));
 
   }
 }

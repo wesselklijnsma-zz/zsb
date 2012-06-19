@@ -6,31 +6,6 @@
  * Comments    : The structure of this file was provided by Nikos Massios
  *   and Matthijs Spaan.
  */
-/*
- * First assignment for the Path Planning part of the Robotics practical.
- *
- * You'll be introduced to the problem of planning a path for the 
- * gripper of the robot arm. You will write some functions which are essential
- * for this task.
- *
- * The assignment consists of three parts:
- * - access some data of the board to get acquainted with it
- * - write a class to convert positions ("e3") to locations (column 4, row 2)
- * - write a function convert locations to cartesian coordinates (x,y,z)
- *
- * Just start reading the comments and fill in the ???? stuff. The latter two
- * parts of the assignment and the data are contained in separate class called
- * StudentBoardTrans, check the bottom of this file.
- * A pointer to documentation can be found in
- * /opt/stud/robotics/hints/DOCUMENTATION .
- *
- * You can test your answers yourself, if they are correct ask one of the
- * practical assistents to verify them.
- *
- * This Java introduction was written for the 2001/2002 course.
- * Matthijs Spaan <mtjspaan@science.uva.nl>
- * $Id: Week1.java,v 1.9 2008/06/10 10:21:36 obooij Exp $
- */
 
 import java.util.Vector;
 import java.util.List;
@@ -38,7 +13,7 @@ import java.util.Arrays;
 
 class BoardTrans
 {
-  /*
+  /**
    * BoardTrans takes one optional argument, specifying the position on the field
    * it should use. It defaults to b7.
    */
@@ -57,11 +32,6 @@ class BoardTrans
     // draw the board state
     boardTrans.board.print();
     
-    /*
-     * You are now asked to access some data in the board structure.
-     * Please print them and check your answers with the chess_board eitor
-     * and the chess_piece editor from SCIL.
-     */
     try {  
       System.out.println("The dimensions of the squares on the board are " +
          boardTrans.board.delta_x +
@@ -93,12 +63,6 @@ class BoardTrans
       System.exit(1);
     }
     
-    /*
-     * Next you should write a small class called BoardLocation which
-     * converts a position like "a1" to a column and a row.
-     * Finish the class BoardLocation in StudentBoardTrans started below.
-     */
-        
     StudentBoardTrans.BoardLocation location = boardTrans.boardLocation;
     BoardLocation realLocation = new BoardLocation(boardTrans.pos);
 
@@ -106,14 +70,6 @@ class BoardTrans
                        location.column + "," + location.row +
                        "), the correct answer is (" + realLocation.column +
                        "," + realLocation.row + ")");
-
-    /*
-     * In order to be able to plan a path to certain position on the board
-     * you have to know where this position is in Cartesian (i.d. real world)
-     * coordinates: (x,y,z) in mm relative to the origin.
-     * Look at the picture of the chess board in the practical manual.
-     * Finish the method toCartesian() in StudentBoardTrans started below.
-     */
 
     Point cartesian = new Point();
     cartesian=boardTrans.toCartesian(location.column, location.row);
@@ -162,35 +118,42 @@ class StudentBoardTrans
 
   public Point toCartesian(int column, int row)
   {
-    // write this function
-
-    /* You can ignore the normal of the board, i.e. we assume the chess
-     * board always lies flat on the table.
-     */
-
+    // size of the squares
     double dx = board.delta_x;
     double dy = board.delta_y;
+    
+    // start of h8 square
     double posx = board.coords.x - board.sur_x;
     double posy = board.coords.y + board.sur_y;   
-    double x, y, z;
     
+    // position of square if the board is not rotated
+    double x, y, z;
     x = posx - (8 - column) * dx + dx / 2;      
     y = posy + (8 - row) * dy - dy / 2;
     z = board.board_thickness;     
 
+    // rotation vars
     double xshift = board.coords.x;
     double yshift = board.coords.y;
     double cos = Math.cos(Math.toRadians(board.theta));
     double sin = Math.sin(Math.toRadians(board.theta));
 
+    // first do a translation
     double[] vec = {x - xshift, y - yshift};
+
+    // then a rotation (note, this is the transpose of the rotation matrix)
     double[][] trans = 
        {{ cos, -sin},
         {sin,  cos}};
     double[] newVec = doTransformation(trans, vec);
+
+    // translate back
     return new Point(newVec[0] + xshift, newVec[1] + yshift, z);
   }
 
+  /**
+   * Applies a linear transformation in matrix form to a vector
+   */
   private double[] doTransformation(double[][] matrix, double[] vector) 
   {
     double[] newVec = new double[matrix[0].length];
@@ -204,23 +167,13 @@ class StudentBoardTrans
     return newVec;
   }
   
-  public static ChessPiece getPiece(StudentBoardTrans.BoardLocation loc, Vector<ChessPiece> pieces)
-  {
-    for(ChessPiece p : pieces)
-    {
-        if(p.location.column == loc.column && p.location.row == loc.row)
-            return p;
-    }
-    return null;
-  }
-
   class BoardLocation{
     public int row;
     public int column;
       
     public BoardLocation()
     {
-      // write this function. Compute the row and column correspoding to String pos.
+      // look up the index in a list, for smaller code
       List<Character> letters = 
          Arrays.asList('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h');      
       
