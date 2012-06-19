@@ -42,7 +42,7 @@
  */
 
 import java.lang.*;
-import java.util.Vector;
+import java.util.*;
 
 public class IK {
 
@@ -66,7 +66,7 @@ public class IK {
    */
   private static Point wristCoordinatesCalculation(GripperPosition pos) {
 
-    Point c = new Point(23,23,23); // ????
+    Point c = new Point(pos.coords.x, pos.coords.y , pos.coords.z + 189);
     return(c);
   }
 
@@ -75,9 +75,16 @@ public class IK {
    */
   private static void armJointCalculation(Point wristCoords,
               JointValues j) {
-    j.zed = 23; // ????
-    j.shoulder = 23; // ????
-    j.elbow = 23; // ????
+    j.zed = wristCoords.z + 175;
+    
+    double x = wristCoords.y; //- 67.5;
+    double y = wristCoords.x;
+    double c = (Math.pow(x, 2) + Math.pow(y, 2) - Math.pow(253.5, 2) - Math.pow(253.5, 2))/
+                        (2*Math.pow(253.5, 2));
+    double s = Math.sqrt(1 - Math.pow(c, 2));
+    
+    j.shoulder = Math.toDegrees(Math.atan2(y, x) - Math.atan2(253.5 * s, 253.5 + 253.5*c));
+    j.elbow = Math.toDegrees(Math.atan2(s, c));
   }
 
   /* Calculate the appropriate values for all joints for position pos.
