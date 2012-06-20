@@ -1,3 +1,14 @@
+/* Changes:
+
+- now uses TreeSet (sorted) to store paths. Sorting costs O(log(n)), our
+  old method for taking the minimum item was O(n).
+- now starts the search at the goal (backwards search).
+- now doesn't check each path to see if a node was visited (went from O(n^2) to
+  O(1)).
+
+*/
+
+
 /*
  * Names       : Jouke van der Maas & Wessel Klijnsma
  * Student IDs : 10186883 and 10172432
@@ -15,6 +26,7 @@ public class AStar {
 
 	private BoardLocation start, goal;
     private ChessBoard board;
+    private int[][] costs = new int[8][8];
 
 	public AStar(ChessBoard board, BoardLocation start, BoardLocation goal) {
 		this.start = start;
@@ -31,7 +43,7 @@ public class AStar {
 	 * the current position. This makes handling of paths much easier.
      */
 	public List<BoardLocation> getPath() {
-		List<Move> paths = new ArrayList<Move>();
+		TreeSet<Move> paths = new TreeSet<Move>();
 		paths.addAll(getMoves());
 
         if (paths.size() == 0) // no possible moves
@@ -39,83 +51,19 @@ public class AStar {
 
 		Move winningMove = goalReached(paths);
 		while (winningMove == null) {
-			// getSearchIteration does the actual work; it decides which
-			// path to expand.
-			paths = getSearchIteration(paths);
 
-            if(paths == null) // no path possible
+			Move optimal = paths.pollFirst();
+                      
+            if(optimal == null) // no path possible
                 return null;
+            
+            List<Move> newMoves = getMoves(optimal);
+            paths.addAll(newMoves);
 
-			winningMove = goalReached(paths);
+			winningMove = goalReached(newMoves);
 		}
 
 		return winningMove.getPath();
-	}
-
-	/**
-	 * Expands the optimal path (g * h is minimal) into the
-	 * current list of paths. It removes the move right before the path it's
-	 * expanding, because it will be embedded in the follow-up moves (see the.
-	 * Move class).
-	 * 
-	 * @param paths
-	 * The end nodes of the paths that are currently expanded. Each node also
-	 * contains a reference to the node leading up to it.
-	 */
-	private List<Move> getSearchIteration(List<Move> paths) {
-		Move optimal = getOptimalMove(paths);
-		paths.remove(optimal);
-
-        // check for impossible paths
-        List<Move> newMoves = getMoves(optimal);
-        while (newMoves.size() == 0)
-        {
-            if(paths.size() == 0) // no more moves
-                return null;
-
-            optimal = getOptimalMove(paths);
-            paths.remove(optimal);
-            
-            newMoves = getMoves(optimal);
-        }
-
-		paths.addAll(newMoves);
-		return paths;
-	}
-
-	/**
-	 * Decides on the optimal move given a collection of possible ones.
-	 * It returns the move that minimizes g * h, where g is the cost up to the
-	 * current point, and h is a heuristic function.
-	 * 
-	 * @param paths
-	 * The moves to choose from.
-	 */
-	private Move getOptimalMove(List<Move> moves) {
-		Move optimal = null;
-		double minCost = Double.MAX_VALUE; // if any move's cost is higher than this, we have a problem anyway
-		double cost = 0;
-
-		for (Move m : moves) {
-			cost = getAStarCost(m);
-			if (cost < minCost) {
-				minCost = cost;
-				optimal = m;
-			}
-		}
-
-		return optimal;
-	}
-
-	/**
-	 * Returns the value of f = g * h from the A* formula (see comment
-	 * at getOptimalMove)
-	 *  
-	 * @param move
-	 * The move to calculate the value of f for.
-	 */
-	private double getAStarCost(Move move) {
-		return move.getTotalCost() + getHeuristic(move.loc);
 	}
 
 	/**
@@ -126,7 +74,7 @@ public class AStar {
 	 */
 	private Move goalReached(List<Move> moves) {
 		for (Move m : moves) {
-			if (m.loc.row == goal.row && m.loc.column == goal.column)
+			if (m.loc.row == start.row && m.loc.column == start.column)
 				return m;
 		}
 		return null;
@@ -140,7 +88,7 @@ public class AStar {
 	 * preceding move is null.
 	 */
 	private List<Move> getMoves() {
-		return getMoves(new Move(null, start, 0));
+		return getMoves(new Move(null, goal, 0));
 	}
 
 	/**
@@ -156,9 +104,10 @@ public class AStar {
 		List<Move> moves = new ArrayList<Move>();
 
 		for (BoardLocation l : locs)
-            if(!previous.visitedBefore(l))
-    			moves.add(new Move(previous, l, 1));
-
+        {
+            moves.add(new Move(previous, l, 1));
+            costs[l.x][l.y] = previous.cost;
+        }
 		return moves;
 	}
 
@@ -185,7 +134,7 @@ public class AStar {
 				new BoardLocation(current.column, current.row - 1) };
 
 		for (BoardLocation b : possible) {
-			if (inBounds(b) && !isOccupied(b))
+			if (inBounds(b) && !isOccupied(b) && costs[b.x][b.y] == 0) // not visited before
 				locs.add(b);
 		}
 
@@ -228,16 +177,18 @@ public class AStar {
 	 * The location to give the heuristic value for.
 	 */
 	private double getHeuristic(BoardLocation current) {
-		return Math.abs(goal.column - current.column) + Math.abs(goal.row - current.row);
+		return Math.abs(start.column - current.column) + Math.abs(start.row - current.row);
 	}
 	
 	/** 
 	 * Used to store moves and paths. Each move contains a reference to the move that
 	 * led up to it.	
 	 */
-	private class Move {
-		private double cost;
+	private class Move implements Comparable<Move> {
+		public double cost;
+        
 		private Move previous;
+        private double heuristic;
 		
 		public BoardLocation loc;
 		
@@ -265,14 +216,11 @@ public class AStar {
 			
 			// previous might be null
 			double prevCost = previous != null
-					? previous.getTotalCost()
+					? previous.cost
 					: 0;
 			this.cost = cost + prevCost;
-		}
-		
-		public double getTotalCost()
-		{
-			return cost;
+            
+            this.heuristic = getHeuristic(loc);
 		}
 		
 		/**
@@ -288,19 +236,18 @@ public class AStar {
 			Move current = this;
 			
 			while(current != null) {
-				locations.add(0, current.loc);
+				locations.add(current.loc);
 				current = current.previous;
 			}
 		    
             return locations;
 		}
-		
-        public boolean visitedBefore(BoardLocation square)
+        
+        public int compareTo(Move other)
         {
-            return (loc.row == square.row && loc.column == square.column) 
-                || (previous != null 
-                        ? previous.visitedBefore(square) 
-                        : false);
+            // negative if our cost is lower, 0 if they're the same and positive
+            // if the our cost is higher.
+            return (this.cost + this.heuristic) - (other.cost + other.heuristic);
         }
 	}
 
