@@ -68,11 +68,10 @@ public class PP {
     computerFrom = args[0].substring(0,2);
     computerTo = args[0].substring(2,4);
     
-    // lowPath automatically calls highPath if no path can be found.
-    lowPath(computerFrom, computerTo);
-
     if(b.hasPiece(computerTo))
         moveToGarbage(computerTo);
+
+    lowPath(computerFrom, computerTo);
 
     /* move the computer piece */
     try {
@@ -191,7 +190,6 @@ public class PP {
             
       // put the piece down again
       height = pieceHeight/3; 
-      move();
       grip = OPEN_GRIP; 
       move();
       
@@ -238,7 +236,6 @@ public class PP {
     height = LOW_HEIGHT / 2 + pieceHeight / 2;
     move();
     height = pieceHeight / 2; 
-    move();
     grip = OPEN_GRIP; 
     move();
     height = SAFE_HEIGHT; 

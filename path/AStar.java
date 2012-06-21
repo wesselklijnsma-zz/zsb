@@ -32,6 +32,8 @@ public class AStar {
 		this.start = start;
 		this.goal = goal;
         this.board = board;
+
+        costs[goal.row][goal.column] = -1;
 	}
 
 	/**
@@ -43,21 +45,22 @@ public class AStar {
 	 * the current position. This makes handling of paths much easier.
      */
 	public List<BoardLocation> getPath() {
-		TreeSet<Move> paths = new TreeSet<Move>();
-		paths.addAll(getMoves());
-
+		PriorityQueue<Move> paths = new PriorityQueue<Move>();
+        List<Move> newMoves = getMoves();
+		paths.addAll(newMoves);
+        
         if (paths.size() == 0) // no possible moves
             return null;
 
-		Move winningMove = goalReached(paths);
+		Move winningMove = goalReached(newMoves);
 		while (winningMove == null) {
 
-			Move optimal = paths.pollFirst();
+			Move optimal = paths.poll();
                       
             if(optimal == null) // no path possible
                 return null;
-            
-            List<Move> newMoves = getMoves(optimal);
+
+            newMoves = getMoves(optimal);
             paths.addAll(newMoves);
 
 			winningMove = goalReached(newMoves);
@@ -106,7 +109,7 @@ public class AStar {
 		for (BoardLocation l : locs)
         {
             moves.add(new Move(previous, l, 1));
-            costs[l.x][l.y] = previous.cost;
+            costs[l.row][l.column] = previous.cost + 1;
         }
 		return moves;
 	}
@@ -134,7 +137,7 @@ public class AStar {
 				new BoardLocation(current.column, current.row - 1) };
 
 		for (BoardLocation b : possible) {
-			if (inBounds(b) && !isOccupied(b) && costs[b.x][b.y] == 0) // not visited before
+			if (inBounds(b) && !isOccupied(b) && costs[b.row][b.column] == 0) // not visited before
 				locs.add(b);
 		}
 
@@ -160,7 +163,11 @@ public class AStar {
 	 * The location to check.
 	 */
 	private boolean isOccupied(BoardLocation loc) {
-		return board.hasPiece(posToString(loc));
+       if(loc.row == start.row && loc.column == start.column)
+           return false;
+       else
+	       return board.hasPiece(posToString(loc));
+
 	}
     private String posToString(BoardLocation loc) {
          
@@ -176,7 +183,7 @@ public class AStar {
 	 * @param current
 	 * The location to give the heuristic value for.
 	 */
-	private double getHeuristic(BoardLocation current) {
+	private int getHeuristic(BoardLocation current) {
 		return Math.abs(start.column - current.column) + Math.abs(start.row - current.row);
 	}
 	
@@ -185,10 +192,10 @@ public class AStar {
 	 * led up to it.	
 	 */
 	private class Move implements Comparable<Move> {
-		public double cost;
+		public int cost;
         
 		private Move previous;
-        private double heuristic;
+        private int heuristic;
 		
 		public BoardLocation loc;
 		
@@ -209,13 +216,13 @@ public class AStar {
 		 * @param cost
 		 * The cost of the move.
 		 */
-		public Move(Move previous, BoardLocation loc, double cost)
+		public Move(Move previous, BoardLocation loc, int cost)
 		{
 			this.previous = previous;
 			this.loc = loc;
 			
 			// previous might be null
-			double prevCost = previous != null
+			int prevCost = previous != null
 					? previous.cost
 					: 0;
 			this.cost = cost + prevCost;
@@ -247,7 +254,7 @@ public class AStar {
         {
             // negative if our cost is lower, 0 if they're the same and positive
             // if the our cost is higher.
-            return (this.cost + this.heuristic) - (other.cost + other.heuristic);
+            return ((this.cost + this.heuristic) - (other.cost + other.heuristic));
         }
 	}
 
