@@ -13,11 +13,11 @@ import java.util.*;
  */
 public class AStar
 {
-	
+
 	private BoardLocation start, goal;
 	private ChessBoard board;
 	private int[][] costs = new int[8][8];
-	
+
 	/**
 	 * Initializes the class.
 	 * 
@@ -32,18 +32,18 @@ public class AStar
 	 *            The end of the path. Since the algorithm uses backwards search
 	 *            this is where the search starts.
 	 */
-	public AStar(ChessBoard board, BoardLocation start, BoardLocation goal)
+	public AStar( ChessBoard board, BoardLocation start, BoardLocation goal )
 	{
 		this.start = start;
 		this.goal = goal;
 		this.board = board;
-		
+
 		// should be 0; but then we'd have to change
 		// everything else to -1. The algorithm checks if a value
 		// is 0 to see if it has been there.
 		costs[goal.row][goal.column] = -1;
 	}
-	
+
 	/**
 	 * Returns the actual path the robot arm has to take to navigate between
 	 * chess pieces. Its result is in board locations, not actual coordinates.
@@ -59,30 +59,30 @@ public class AStar
 	{
 		PriorityQueue<Move> paths = new PriorityQueue<Move>();
 		List<Move> newMoves = getMoves();
-		paths.addAll(newMoves);
-		
-		if (paths.size() == 0) // no possible moves
+		paths.addAll( newMoves );
+
+		if ( paths.size() == 0 ) // no possible moves
 			return null;
-		
-		Move winningMove = goalReached(newMoves);
-		while (winningMove == null)
+
+		Move winningMove = goalReached( newMoves );
+		while ( winningMove == null )
 		{
-			
+
 			Move optimal = paths.poll();
-			
-			if (optimal == null) // no moves left
+
+			if ( optimal == null ) // no moves left
 				return null;
-			
-			newMoves = getMoves(optimal);
-			paths.addAll(newMoves);
-			
+
+			newMoves = getMoves( optimal );
+			paths.addAll( newMoves );
+
 			// we only need to check the new moves
-			winningMove = goalReached(newMoves);
+			winningMove = goalReached( newMoves );
 		}
-		
+
 		return winningMove.getPath();
 	}
-	
+
 	/**
 	 * Returns a move that reaches the goal from a collection; or null if one
 	 * doesn't exist.
@@ -90,16 +90,16 @@ public class AStar
 	 * @param moves
 	 *            The collection of moves to check.
 	 */
-	private Move goalReached(List<Move> moves)
+	private Move goalReached( List<Move> moves )
 	{
-		for (Move m : moves)
+		for ( Move m : moves )
 		{
-			if (m.loc.row == start.row && m.loc.column == start.column)
+			if ( m.loc.row == start.row && m.loc.column == start.column )
 				return m;
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns all possible moves from the starting position.
 	 * 
@@ -109,9 +109,9 @@ public class AStar
 	 */
 	private List<Move> getMoves()
 	{
-		return getMoves(new Move(null, goal, 0));
+		return getMoves( new Move( null, goal, 0 ) );
 	}
-	
+
 	/**
 	 * Returns all possible moves given a position. The position is wrapped in a
 	 * Move object to preserve the followed path.
@@ -124,19 +124,19 @@ public class AStar
 	 *            The move leading up to the current location. It will contain
 	 *            the path up untill the current point.
 	 */
-	private List<Move> getMoves(Move previous)
+	private List<Move> getMoves( Move previous )
 	{
-		List<BoardLocation> locs = getNewLocations(previous.loc);
+		List<BoardLocation> locs = getNewLocations( previous.loc );
 		List<Move> moves = new ArrayList<Move>();
-		
-		for (BoardLocation l : locs)
+
+		for ( BoardLocation l : locs )
 		{
-			moves.add(new Move(previous, l, 1));
+			moves.add( new Move( previous, l, 1 ) );
 			costs[l.row][l.column] = previous.cost + 1;
 		}
 		return moves;
 	}
-	
+
 	/**
 	 * Returns reachable locations from the current one. It checks if each move
 	 * is possible. A move is possible if the new position is within bounds of
@@ -151,26 +151,27 @@ public class AStar
 	 * @param current
 	 *            The location we're moving away from.
 	 */
-	private List<BoardLocation> getNewLocations(BoardLocation current)
+	private List<BoardLocation> getNewLocations( BoardLocation current )
 	{
 		List<BoardLocation> locs = new ArrayList<BoardLocation>();
 		BoardLocation[] possible = new BoardLocation[] {
-				new BoardLocation(current.column + 1, current.row),
-				new BoardLocation(current.column - 1, current.row),
-				new BoardLocation(current.column, current.row + 1),
-				new BoardLocation(current.column, current.row - 1) };
-		
-		for (BoardLocation b : possible)
+				new BoardLocation( current.column + 1, current.row ),
+				new BoardLocation( current.column - 1, current.row ),
+				new BoardLocation( current.column, current.row + 1 ),
+				new BoardLocation( current.column, current.row - 1 ) };
+
+		for ( BoardLocation b : possible )
 		{
-			if (inBounds(b) && !isOccupied(b) && costs[b.row][b.column] == 0) // not
-																				// visited
-																				// before
-				locs.add(b);
+			if ( inBounds( b ) && !isOccupied( b )
+					&& costs[b.row][b.column] == 0 ) // not
+														// visited
+														// before
+				locs.add( b );
 		}
-		
+
 		return locs;
 	}
-	
+
 	/**
 	 * Returns true if the specified location is within the bounds of the chess
 	 * board, otherwise false.
@@ -178,11 +179,11 @@ public class AStar
 	 * @param loc
 	 *            The location to check.
 	 */
-	private boolean inBounds(BoardLocation loc)
+	private boolean inBounds( BoardLocation loc )
 	{
 		return loc.column >= 0 && loc.column < 8 && loc.row >= 0 && loc.row < 8;
 	}
-	
+
 	/**
 	 * Returns true if the specified location contains a chess piece, otherwise
 	 * false.
@@ -195,27 +196,27 @@ public class AStar
 	 * @param loc
 	 *            The location to check.
 	 */
-	private boolean isOccupied(BoardLocation loc)
+	private boolean isOccupied( BoardLocation loc )
 	{
-		if (loc.row == start.row && loc.column == start.column)
+		if ( loc.row == start.row && loc.column == start.column )
 			return false;
 		else
-			return board.hasPiece(posToString(loc));
-		
+			return board.hasPiece( posToString( loc ) );
+
 	}
-	
+
 	/**
 	 * Needed to check if a square is occupied. The used api requires a string
 	 * instead of a BoardPosition to its functions.
 	 */
-	private String posToString(BoardLocation loc)
+	private String posToString( BoardLocation loc )
 	{
-		
+
 		char[] letters = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
-		return Character.toString(letters[loc.column])
-				+ Integer.toString(loc.row + 1);
+		return Character.toString( letters[loc.column] )
+				+ Integer.toString( loc.row + 1 );
 	}
-	
+
 	/**
 	 * Returns a heuristic for the distance between the current location and the
 	 * goal. The value is simply the Manhattan distance between the two
@@ -227,12 +228,12 @@ public class AStar
 	 * @param current
 	 *            The location to give the heuristic value for.
 	 */
-	private int getHeuristic(BoardLocation current)
+	private int getHeuristic( BoardLocation current )
 	{
-		return Math.abs(start.column - current.column)
-				+ Math.abs(start.row - current.row);
+		return Math.abs( start.column - current.column )
+				+ Math.abs( start.row - current.row );
 	}
-	
+
 	/**
 	 * Used to store moves and paths. Each move contains a reference to the move
 	 * that led up to it.
@@ -247,12 +248,12 @@ public class AStar
 	private class Move implements Comparable<Move>
 	{
 		public int cost;
-		
+
 		private Move previous;
 		private int heuristic;
-		
+
 		public BoardLocation loc;
-		
+
 		/**
 		 * Creates a new Move object.
 		 * 
@@ -271,18 +272,18 @@ public class AStar
 		 * @param cost
 		 *            The cost of the move.
 		 */
-		public Move(Move previous, BoardLocation loc, int cost)
+		public Move( Move previous, BoardLocation loc, int cost )
 		{
 			this.previous = previous;
 			this.loc = loc;
-			
+
 			// previous might be null
 			int prevCost = previous != null ? previous.cost : 0;
 			this.cost = cost + prevCost;
-			
-			this.heuristic = getHeuristic(loc);
+
+			this.heuristic = getHeuristic( loc );
 		}
-		
+
 		/**
 		 * Returns the path from the first move in the tree until the current
 		 * one, respectively.
@@ -294,26 +295,26 @@ public class AStar
 		{
 			List<BoardLocation> locations = new ArrayList<BoardLocation>();
 			Move current = this;
-			
-			while (current != null)
+
+			while ( current != null )
 			{
-				locations.add(current.loc);
+				locations.add( current.loc );
 				current = current.previous;
 			}
-			
+
 			return locations;
 		}
-		
+
 		/**
 		 * Returns a negative integer if the other cost + heuristic is higher, 0
 		 * if they are equal and a positive integer if this cost + heuristic is
 		 * higher according to the Comparable specification (see java
 		 * documentation).
 		 */
-		public int compareTo(Move other)
+		public int compareTo( Move other )
 		{
-			return ((this.cost + this.heuristic) - (other.cost + other.heuristic));
+			return ( ( this.cost + this.heuristic ) - ( other.cost + other.heuristic ) );
 		}
 	}
-	
+
 }
