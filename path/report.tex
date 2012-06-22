@@ -1,5 +1,7 @@
 \documentclass[a4paper, 11pt]{article}
 
+\usepackage{amsmath}
+
 \title{Using path planning \& inverse kinematics to play chess with UMI-RTX robot arm}
 \author{Jouke van der Maas (10186883)  \& Wessel Klijnsma (10172432)}
 \date{\today}
@@ -8,14 +10,81 @@
 \maketitle
 
 \section{Introduction}
-For the Searching 
+During the second and third week of the Zoeken, Sturen en Bewegen project, a UMI-RTX robot arm
+had to be programmed to move chess pieces across a chessboard.  A path planning module and a 
+inverse kinematics module were needed to fulfill this task. 
 
 \section{Solution}
 
+	\subsection{Path planning}
+	
+	\subsection{Inverse kinematics}\label{sec:invkin}
+	Inverse kinematic of position deals with the problem: \textit{at which angle should the robot 
+	joints be set in order to reach a given position?}. Although there is no general solution to this 
+	problem, there are methods that solve a simplified version of it. The UMI-RTX has a 2-link arm, 
+	in this case one of the methods gives workable solutions. \\
+         The equation that has to be solved is thoroughly described in the syllabus \cite{ldorst01} 
+         Summary of the solution:
+        
+         \begin{equation}
+         \begin{bmatrix}
+        c_{12} & -s_{12} & 0 & l_1c_1+l_2c_{12} \\
+        s_{12} & c_{12} & 0 & l_1s_1 + l_2s_{12} \\
+        0 & 0 & 1 & 0 \\
+        0 & 0 & 0 & 1
+        \end{bmatrix} =
+        \begin{bmatrix}
+        r_{11} & r_{12} & r_{13} & x \\
+        r_{21} & r_{22} & r_{23} & y \\
+        r_{31} & r_{32} & r_{33} & z \\
+        0 & 0 & 0 & 1
+        \end{bmatrix}
+        \end{equation}
+        
+       The solution is :
+       
+       \begin{equation}
+       \theta_1 =  atan2(y, x) - atan2(l_1s_2, l_1 + l_2c_2)
+       \end{equation}
+       
+       \begin{equation}
+       \theta_2 = atan2(s_2, c_2)
+       \end{equation}
+       
+       There are two problems with this solution: \textit{redundancy} and \textit{degeneracy}. \\
+       There are two solutions to $s_2$, a negative and a positive one, also known as a 'left-hand' 
+       and a 'right-hand' solution. This means that for each situation one of these two has to be 
+       chosen, this is called \textit{redundancy}. \\
+       When position (0,0,0) is to be reached the \textit{degeneracy} occurs. $c_1 = -1$, $s_1 = 0$ 
+       and $\theta_2 = - \pi$ which gives $\theta_1 = atan2(0,0) - atan2(0,0)$ which is undefined.  
+        
+           
 \section{Implementation}
 
+	\subsection{Path planning}
+	
+	\subsection{Inverse kinematics}
+	Once the solution described in section \ref{sec:invkin} was found, the implementation of it was
+	rather straightforward. To calculate the shoulder and elbow joint values the formulas just had to 
+	applied. To deal with the redundancy problem there had to be chosen between left-hand of 
+	right -hand configuration. This decision was made based on whether the angle calculated is 
+	reach able for the UMI-RTX (shoulder range: -90 - 90) if not, a which between left and right 
+	would be made.
+	
+	
 \section{Testing}
 
+	\subsection{Path planning}
+	
+	\subsection{Inverse kinematics}
+	Testing of the inverse kinematics (IK) module was done by comparing its results to results of 
+	the standard IK module. This way it was easy to see if the joint values were correct 
+	without using the robot. The difference between the created IK module and the standard one 
+	is that the standard IK module seems to have different criteria to switch between left and right - 
+	hand configuration but this hasn't caused any problems.
+
 \section{Conclusion}
-    
+
+\bibliographystyle{plain}
+\bibliography{bib}    
 \end{document}
