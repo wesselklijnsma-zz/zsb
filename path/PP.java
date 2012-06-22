@@ -26,7 +26,6 @@ public class PP {
   private static double height, grip;
   private static ChessBoard b;
   private static int blackTaken;
-  private static int whiteTaken;
 
   /**
    * Writes the positions for the specified move to a file called positions.txt
@@ -68,11 +67,12 @@ public class PP {
     computerFrom = args[0].substring(0,2);
     computerTo = args[0].substring(2,4);
     
+    if(b.hasPiece(computerTo))
+        moveToGarbage(computerTo);
+
     // lowPath automatically calls highPath if no path can be found.
     lowPath(computerFrom, computerTo);
 
-    if(b.hasPiece(computerTo))
-        moveToGarbage(computerTo);
 
     /* move the computer piece */
     try {
@@ -173,7 +173,7 @@ public class PP {
       move();
       
       // put gripper around the piece
-      height = pieceHeight/3; 
+      height = pieceHeight*(2/3); 
       move();
 
       // close the gripper and move to the path height
@@ -190,8 +190,7 @@ public class PP {
       }
             
       // put the piece down again
-      height = pieceHeight/3; 
-      move();
+      height = pieceHeight*(2/3); 
       grip = OPEN_GRIP; 
       move();
       
@@ -223,7 +222,7 @@ public class PP {
     
     height = LOW_HEIGHT; 
     move();
-    height = pieceHeight / 2; 
+    height = pieceHeight * (2/3); 
     move();
     grip = CLOSED_GRIP; 
     move();
@@ -233,12 +232,11 @@ public class PP {
     // putting it in its new spot
     location = endPoint; 
     move();
-    height = LOW_HEIGHT + pieceHeight / 2; 
+    height = LOW_HEIGHT + pieceHeight * (2/3); 
     move();
-    height = LOW_HEIGHT / 2 + pieceHeight / 2;
+    height = LOW_HEIGHT / 2 + pieceHeight * (2/3);
     move();
-    height = pieceHeight / 2; 
-    move();
+    height = pieceHeight * (2/3); 
     grip = OPEN_GRIP; 
     move();
     height = SAFE_HEIGHT; 
@@ -254,6 +252,7 @@ public class PP {
    * height of the board.
    */
   private static void move()
+
   {
       p.add(new GripperPosition(addHeight(location, height), 0, grip));
   }
@@ -317,11 +316,8 @@ public class PP {
     ChessPiece piece = b.getPiece(to);
     
     Point startPoint = toPoint(to);
-    Point endPoint;
-    if (piece.side == "black")
-        endPoint = blackToGarbage(piece);
-    else
-        endPoint = whiteToGarbage(piece);
+    Point endPoint = blackToGarbage(piece);
+    
 
     // set the board thickness to 0; we're putting things next to it
     double boardThickness = b.board_thickness;
@@ -343,41 +339,15 @@ public class PP {
 
     if (blackTaken > 7)
     {
-        row = -3;
+        row = 10;
         column = blackTaken - 8;
     }
     else
     {
-        row = -2;
+        row = 9;
         column = blackTaken;
     }
     blackTaken++;
     return toPoint(new BoardLocation(column, row));
-  }
- 
-  /**
-   * Calculates the coordinate of the spot for the next taken white
-   * piece.
-   *
-   * @param piece
-   * The piece to move.
-   */
-  private static Point whiteToGarbage(ChessPiece piece)
-  {
-    int column, row;
-
-    if (whiteTaken > 7)
-    {
-        row = 10;
-        column = whiteTaken - 8;
-    }
-    else
-    {
-        row = 9;
-        column = whiteTaken;
-    }
-    whiteTaken++;
-    return toPoint(new BoardLocation(column, row));
-
   }
 }
